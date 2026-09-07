@@ -1,0 +1,78 @@
+I am using Delphi 13 and I would like to create a very simple grep tool one that is CLI only, so no interface and the other that is a single form, 
+but you must ensure that you split out the form and the CLI aware from the actual TGrep class that is responsible for all the work. 
+
+You must behave as a senior developer who is also responsible for architecture and good design would behave. 
+SoC ( Separation of Concerns ) and KISS must be followed at all times.
+
+The TGrep class must be capable of :
+
+1. Search using Regex or just text
+2. Case sensitive / insensitive
+3. Must be able to Search and Replace
+
+The user should be able to filter on :
+
+1. Filename wildcards
+2. Include and Exclude subfolders
+3. Only search on files whose datestamp is from a particular date range
+4. Include and Exclude subfolders binary files
+5. Include and Exclude hidden files
+6. Only find files that are bigger than or smaller than a specified size
+
+Whenever a Search or Replace is performed it must be threaded, ideally using PPL
+
+The results must come back on events
+
+1. So when a file is found where there is a search match it comes back as OnFileFound(aFilename:string)
+2. We must then be able to request the matches to be displayed as RequestMatches(aFilename: string; aLinesAboveAndBelow: integer)
+3. The results of this request in 2. must also be on an event OnRequestedContents(aContents: TObjectList<TMatchedLines>)
+
+TMatchedLines = class
+   Filename: string;
+   LineNumber: integer;
+   MatchedValue: string;
+end;
+
+For now can you please just return me the TGrep class with a TForm example
+
+----------
+
+I have a utilities class to aid with CLI development. If I paste that one here could you use it to create the CLI version please
+
+----------
+
+The help for the CLI application is not good enough. 
+On a previous project the help was in it's own procedure and looked something like:
+
+procedure ShowHelp;
+begin
+  WriteLn('');
+  WriteLn('cliNtfySend - Command line Ntfy message sender');
+  WriteLn('');
+  WriteLn('Usage: cliNtfySend [options]');
+  WriteLn('');
+  WriteLn('Options:');
+  WriteLn('  -url <url>           Server URL (default: https://ntfy.sh)');
+  WriteLn('  -topic <topic>       Topic name (REQUIRED)');
+  WriteLn('  -msg <message>       Message to send (REQUIRED)');
+  WriteLn('  -title <title>       Message title (optional)');
+  WriteLn('  -tags <tags>         Comma-separated tags (optional)');
+  WriteLn('  -priority <1-5>      Priority level (default: 3)');
+  WriteLn('  -?                   Show this help message');
+  WriteLn('');
+  WriteLn('Examples:');
+  WriteLn('  cliNtfySend -topic mytopic -msg "Hello World"');
+  WriteLn('  cliNtfySend -url https://ntfy.sh -topic mytopic -title "Alert" -msg "System down"');
+  WriteLn('  cliNtfySend -topic mytopic -msg "Backup done" -tags backup,success');
+  WriteLn('');
+end;
+
+Please do something similar for GrepCLI.dpr
+
+----------
+
+I'd like you to add the following:
+
+1. Colourised output (Windows ANSI sequences)
+2. Colourised help
+3. A -dryrun mode for replace operations

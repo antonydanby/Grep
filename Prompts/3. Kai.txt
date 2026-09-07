@@ -1,0 +1,11 @@
+If you look in the currently open project you will see @@JSONConfig.pas which will allow you to read and write this config into a JSON file.
+
+All the values shown on the main form that provide input of values to TGrep should stored into a JSON Config file using TJSONConfig
+
+----------
+
+If you look in the currently open project you will see @@Logger.pas which will allow you to write everything that was found to a log file.
+
+Obviously we will need a switch or an option to select writing to a log file. The we will need a switch or option to pick between cvs,tab and json files
+
+----------

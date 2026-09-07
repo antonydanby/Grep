@@ -1,0 +1,47 @@
+#GrepFMX project 
+
+This project contains a class called TGrep (@@Grep.Core.pas). TGrep is using the a class for Grep operations
+
+In my GrepFMX project I have created a blank main form (@@MainForm_FMX.pas) in FMX and added Grep.Core to the uses and Grep: TGrep to the unit.
+
+I need you to fill in this form (FMX) with Edit's, checkboxes and whatever is required so a user can perform a Grep. If you look at the Grep.EXE project and the @@MainForm_VCL.pas form you can see how this was done for VCL
+
+The Grep class contains:
+
+1. Switch between Regex or just text
+2. Case sensitive / insensitive searching
+3. Search and Replace, or just Search
+
+The user should be able to filter on :
+
+1. Filename wildcards
+2. Include and Exclude subfolders
+3. Only search on files whose datestamp is from a particular date range
+4. Include and Exclude subfolders 
+5. Include and Exclude binary files
+6. Include and Exclude hidden files
+7. Only find files that are bigger than or smaller than a specified size
+8. User should be able to specify how many lines above and below the matched line is shown 3 is the default. 
+   The matched line should be emboldened so as to distinquish it from all others. 
+   The panel should only show the matched line until a user clicks at which point all lines should be shown
+   A further click should collapse it back to the matched line again
+
+## TListBox 
+There is a TListView in FMX and I still expect a TListView to be used, as it will be the fastest and smoothest.
+The Canvas on an FMX TListView should allow for the drawing of file icons. 
+
+## MatchesList
+To make it easier for you to work out how to do this I have created @@MatchesList.pas. 
+You must use this list to store the matches you found
+ 
+## SOC between displaying and the main form
+The logic behind displaying and the main form logic should be kept separate.
+If you look at @@MessageDisplay_VCL.pas you can see how this works. For the FMX project I expect you to do the same ( i.e. keep the display logic and main form logic separate ). To this end, I need you to complete a @@MatchesDisplay_FMX.pas
+
+## Main form appearance
+I need this main form to be simple, but I do not want a grey slab. I want it to use modern components.
+This should be a straightforward task for FMX
+
+However, it still needs to look a bit like a Windows application, not an Android or IOS application
+I know this is a tool mainly for developers, but it doesn't need to be boring
+

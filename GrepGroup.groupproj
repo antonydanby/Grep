@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{38E60780-B0C0-4117-A9AA-AD20C54A0E2F}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="GrepCLI.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="GrepVCL.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="GrepFMX.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="GrepCLI">
+        <MSBuild Projects="GrepCLI.dproj"/>
+    </Target>
+    <Target Name="GrepCLI:Clean">
+        <MSBuild Projects="GrepCLI.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="GrepCLI:Make">
+        <MSBuild Projects="GrepCLI.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="GrepVCL">
+        <MSBuild Projects="GrepVCL.dproj"/>
+    </Target>
+    <Target Name="GrepVCL:Clean">
+        <MSBuild Projects="GrepVCL.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="GrepVCL:Make">
+        <MSBuild Projects="GrepVCL.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="GrepFMX">
+        <MSBuild Projects="GrepFMX.dproj"/>
+    </Target>
+    <Target Name="GrepFMX:Clean">
+        <MSBuild Projects="GrepFMX.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="GrepFMX:Make">
+        <MSBuild Projects="GrepFMX.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="GrepCLI;GrepVCL;GrepFMX"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="GrepCLI:Clean;GrepVCL:Clean;GrepFMX:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="GrepCLI:Make;GrepVCL:Make;GrepFMX:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

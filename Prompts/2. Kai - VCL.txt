@@ -1,0 +1,87 @@
+This project contains a class called TGrep (@@Grep.Core.pas). TGrep is using the a class for Grep operations
+
+In my Grep project I have created a blank main form (@@MainForm_VCL.pas) in VCL and added Grep.Core to the uses and Grep: TGrep to the unit.
+
+I need you to fill in this form (VCL) with Edit's, checkboxes and whatever is required so a user can perform a Grep 
+
+The Grep class contains:
+
+1. Switch between Regex or just text
+2. Case sensitive / insensitive searching
+3. Search and Replace, or just Search
+
+The user should be able to filter on :
+
+1. Filename wildcards
+2. Include and Exclude subfolders
+3. Only search on files whose datestamp is from a particular date range
+4. Include and Exclude subfolders 
+5. Include and Exclude binary files
+6. Include and Exclude hidden files
+7. Only find files that are bigger than or smaller than a specified size
+8. User should be able to specify how many lines above and below the matched line is shown 3 is the default. 
+   The matched line should be emboldened so as to distinquish it from all others. 
+   The panel should only show the matched line until a user clicks at which point all lines should be shown
+   A further click should collapse it back to the matched line again
+
+I expect there to be a TScrollBox that displays each individual search result into it's own panel and using a TDirect2DCanvas
+to draw the results and file icons for that result. 
+
+A TDirect2DCanvas will allow for other images or symbols to be drawn if required; thus making it future proof
+
+To make it easier for you to work out how to do this I have created @@MatchesList.pas. 
+You must use this list to store the matches you found
+ 
+To make it easier for you to work out how to display onto a TDirect2DCanvas I have included @@MessageDisplay.pas from a previous project. 
+This is not a fit for this project, but it does show how it is to be done. 
+I want you to create a MatchesDisplay_VCL.pas with a TMatchesDisplay class
+
+I need this main form to be simple, but I do not want a grey slab. I want it to use modern components.
+
+Some of these UI components can be found in the Windows 10 tab on the Component palette, such as:
+
+	TToggleSwitch
+	TSplitView
+	TStackPanel
+	TCardPanel
+	TTitleBarPanel
+	TFormTabsBar
+
+I know this is a tool mainly for developers, but it doesn't need to be boring
+
+
+----------
+
+Can you change this please. You misunderstood me. The @@MatchesDisplay_VCL.pas was only for the display of matches not for the complete UI. I need the UI to be placed onto @@MainForm_VCL.pas 
+
+----------
+
+Can you tell me please, when you code do you have SoC, KiSS and SOLID principles in mind. Do you think like a Senior Engineer, Architect or Lead Engineer, i.e. someone who is responsible for the design of the application as a holistic whole.
+
+The reason I ask is when I run this application and use data that I know will return a low number of hits, such as getting it to search just in this application's source folder for the phrase 'Grep.Core' then it works fine
+
+However, when I ask it to search for something that will get a much higher number of hits, such as the phrase 'JSON' in all of my projects, then the application get's so far and freezes. It never recovers from this freeze and Not Responding can be visibly seen in the Title Bar.
+
+Being a senior engineer myself I know what the issue is : I instructed you to use TMatchesDisplay and TMatchesList. The two should be separate from each other. So the FMatches.Add(AData); I found in TMatchesDisplay.AddMatch is WRONG. So is the RebuildPanels call underneath it where in RebuildPanels the whole of the list is rebuilt again ( for I := 0 to FMatches.Count - 1 do ). If you do this for every match you find you will quickly swamp the UI.
+
+The true logic should be TGrep send back the OnFileFound. The MainForm requests via FGrep.RequestMatches
+In MainForm.HandleRequestedContents this should just be adding to the TMatchesList and NOTHING else. 
+
+In the MainForm HandleRequestedContents should only be building up an instance of TMatchesList. In the HandleSearchCompleted we should then be writing out the contents of the TMatchesList instance. 
+
+This will require an instance of TMatchesList being held on the MainForm
+
+In order to ensure the application looks as if it's doing something, before it gets to HandleSearchCompleted then we could display: 
+
+	File : <1st filename.extension> found with matches ...
+	File : <2nd filename.extension> found with matches …
+
+onto the TDirect2DCanvas and when we get to HandleSearchCompleted we could wipe the TDirect2DCanvas and start showing the actual matches
+
+
+
+
+
+
+
+
