@@ -145,19 +145,22 @@ end;
 
 function TGrep.IsHidden(const aFile: string): Boolean;
 var
-  Attributes: Integer;
   Name: string;
+{$IF Defined(MSWINDOWS)}
+  Attributes: Integer;
+{$ENDIF}
 begin
   Name := ExtractFileName(ExcludeTrailingPathDelimiter(aFile));
   Result := Name.StartsWith('.');
   if Result then
     Exit;
 
+{$IF Defined(MSWINDOWS)}
+{$WARN SYMBOL_PLATFORM OFF}
   Attributes := FileGetAttr(aFile);
-  if Attributes = -1 then
-    Exit(False);
-
-  Result := (Attributes and faHidden) <> 0;
+  Result := (Attributes <> -1) and ((Attributes and faHidden) <> 0);
+{$WARN SYMBOL_PLATFORM ON}
+{$ENDIF}
 end;
 
 function TGrep.IsSearchCancelled(const ASearchToken: Integer): Boolean;
@@ -344,7 +347,7 @@ var
   SearchToken: Integer;
 begin
   SearchToken := TInterlocked.Increment(FSearchToken);
-  TTask.Run(
+  TTask.Create(
     procedure
     begin
       try
@@ -354,7 +357,7 @@ begin
           FOnSearchCompleted;
       end;
     end
-  );
+  ).Start;
 end;
 
 procedure TGrep.ReplaceFolder(const AFolder: string; const ASearchToken: Integer);
@@ -448,7 +451,7 @@ var
   SearchToken: Integer;
 begin
   SearchToken := TInterlocked.Increment(FSearchToken);
-  TTask.Run(
+  TTask.Create(
     procedure
     begin
       try
@@ -458,7 +461,7 @@ begin
           FOnSearchCompleted;
       end;
     end
-  );
+  ).Start;
 end;
 
 procedure TGrep.Stop;

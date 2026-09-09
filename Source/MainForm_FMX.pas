@@ -18,6 +18,7 @@ uses
   FMX.Forms,
   FMX.Graphics,
   FMX.Dialogs,
+  FMX.DialogService,
   FMX.Layouts,
   FMX.Objects,
   FMX.StdCtrls,
@@ -393,13 +394,15 @@ begin
   AFolder := Trim(FolderEdit.Text);
   if (AFolder = '') or not TDirectory.Exists(AFolder) then
   begin
-    MessageDlg('Choose a valid root folder before starting the search.', TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], 0);
+    TDialogService.MessageDialog('Choose a valid root folder before starting the search.',
+      TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], TMsgDlgBtn.mbOK, 0, nil);
     Exit;
   end;
 
   if Trim(SearchTextEdit.Text) = '' then
   begin
-    MessageDlg('Enter text or a regex pattern to search for.', TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], 0);
+    TDialogService.MessageDialog('Enter text or a regex pattern to search for.',
+      TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], TMsgDlgBtn.mbOK, 0, nil);
     Exit;
   end;
 
@@ -408,25 +411,29 @@ begin
 
   if (Trim(MinSizeEdit.Text) <> '') and not TryStrToInt64(Trim(MinSizeEdit.Text), MinSize) then
   begin
-    MessageDlg('The minimum file size must be a whole number.', TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], 0);
+    TDialogService.MessageDialog('The minimum file size must be a whole number.',
+      TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], TMsgDlgBtn.mbOK, 0, nil);
     Exit;
   end;
 
   if (Trim(MaxSizeEdit.Text) <> '') and not TryStrToInt64(Trim(MaxSizeEdit.Text), MaxSize) then
   begin
-    MessageDlg('The maximum file size must be a whole number.', TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], 0);
+    TDialogService.MessageDialog('The maximum file size must be a whole number.',
+      TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], TMsgDlgBtn.mbOK, 0, nil);
     Exit;
   end;
 
   if (Trim(MinSizeEdit.Text) <> '') and (Trim(MaxSizeEdit.Text) <> '') and (MinSize > MaxSize) then
   begin
-    MessageDlg('The minimum file size cannot be greater than the maximum file size.', TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], 0);
+    TDialogService.MessageDialog('The minimum file size cannot be greater than the maximum file size.',
+      TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], TMsgDlgBtn.mbOK, 0, nil);
     Exit;
   end;
 
   if UseDateFromSwitch.IsChecked and UseDateToSwitch.IsChecked and (DateFromEdit.Date > DateToEdit.Date) then
   begin
-    MessageDlg('The "from" date cannot be after the "to" date.', TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], 0);
+    TDialogService.MessageDialog('The "from" date cannot be after the "to" date.',
+      TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], TMsgDlgBtn.mbOK, 0, nil);
     Exit;
   end;
 
@@ -437,7 +444,8 @@ begin
     except
       on E: Exception do
       begin
-        MessageDlg('The regex pattern is invalid: ' + E.Message, TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], 0);
+        TDialogService.MessageDialog('The regex pattern is invalid: ' + E.Message,
+          TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], TMsgDlgBtn.mbOK, 0, nil);
         Exit;
       end;
     end;

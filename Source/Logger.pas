@@ -22,7 +22,7 @@ type
     LogObject: string;
     Description: string;
     LogStatus: TLogStatus;
-    class function Create: TLogEntry; static;
+    constructor Create;
   end;
 
   TLogger = class
@@ -397,13 +397,14 @@ end;
 
 { TLogEntry }
 
-class function TLogEntry.Create: TLogEntry;
+constructor TLogEntry.Create;
 begin
-  Result.LogTime := Now;
-  Result.UserID := '';
-  Result.LogObject := '';
-  Result.Description := '';
-  Result.LogStatus := TLogStatus.Information;
+  inherited Create;
+  LogTime := Now;
+  UserID := '';
+  LogObject := '';
+  Description := '';
+  LogStatus := TLogStatus.Information;
 end;
 
 initialization
@@ -414,4 +415,3 @@ finalization
   TLogger.FFileLock.Free;
 
 end.
-
