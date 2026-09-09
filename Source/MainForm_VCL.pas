@@ -137,10 +137,14 @@ implementation
 procedure AddWrappedParagraph(ACanvas: TCanvas; ALines: TStrings; const AParagraph: string;
   const AMaxWidth: Integer);
 var
-  Words: TStringList;
-  CurrentLine: string;
-  Candidate: string;
-  I: Integer;
+  Remaining: string;
+  BreakPos: Integer;
+  LastSpace: Integer;
+  Prefix: string;
+  Low: Integer;
+  High: Integer;
+  Mid: Integer;
+  Best: Integer;
 begin
   if AParagraph = '' then
   begin
@@ -148,36 +152,41 @@ begin
     Exit;
   end;
 
-  Words := TStringList.Create;
-  try
-    ExtractStrings([' '], [], PChar(AParagraph), Words);
-    if Words.Count = 0 then
+  Remaining := AParagraph;
+  while Remaining <> '' do
+  begin
+    if (AMaxWidth <= 0) or (ACanvas.TextWidth(Remaining) <= AMaxWidth) then
     begin
-      ALines.Add(AParagraph);
+      ALines.Add(Remaining);
       Exit;
     end;
 
-    CurrentLine := '';
-    for I := 0 to Words.Count - 1 do
+    Low := 1;
+    High := Length(Remaining);
+    Best := 1;
+    while Low <= High do
     begin
-      if CurrentLine = '' then
-        Candidate := Words[I]
-      else
-        Candidate := CurrentLine + ' ' + Words[I];
-
-      if (AMaxWidth > 0) and (CurrentLine <> '') and (ACanvas.TextWidth(Candidate) > AMaxWidth) then
+      Mid := (Low + High) div 2;
+      Prefix := Copy(Remaining, 1, Mid);
+      if ACanvas.TextWidth(Prefix) <= AMaxWidth then
       begin
-        ALines.Add(CurrentLine);
-        CurrentLine := Words[I];
+        Best := Mid;
+        Low := Mid + 1;
       end
       else
-        CurrentLine := Candidate;
+        High := Mid - 1;
     end;
 
-    if CurrentLine <> '' then
-      ALines.Add(CurrentLine);
-  finally
-    Words.Free;
+    BreakPos := Best;
+    LastSpace := BreakPos;
+    while (LastSpace > 1) and (Remaining[LastSpace] <> ' ') do
+      Dec(LastSpace);
+
+    if LastSpace > 1 then
+      BreakPos := LastSpace;
+
+    ALines.Add(Copy(Remaining, 1, BreakPos));
+    Delete(Remaining, 1, BreakPos);
   end;
 end;
 
@@ -508,15 +517,30 @@ end;
 
 function TMainForm.CalculateToggleHeight(const AMatch: TMatchesData): Integer;
 var
+  TitleHeight: Integer;
   LineHeight: Integer;
-  EstimatedLines: Integer;
+  TotalHeight: Integer;
+  MaxAvailableHeight: Integer;
 begin
+  FToggleMatch := AMatch;
+  BuildToggleWrappedLines;
+
+  FTogglePaintBox.Canvas.Font.Name := 'Segoe UI Semibold';
+  FTogglePaintBox.Canvas.Font.Size := 9;
+  TitleHeight := FTogglePaintBox.Canvas.TextHeight('Wg');
+
   FTogglePaintBox.Canvas.Font.Name := 'Consolas';
   FTogglePaintBox.Canvas.Font.Size := 9;
   LineHeight := FTogglePaintBox.Canvas.TextHeight('Wg') + 2;
 
-  EstimatedLines := 4 + AMatch.LinesAbove.Count + AMatch.LinesBelow.Count;
-  Result := EnsureRange((EstimatedLines * LineHeight) + 30, 90, 300);
+  TotalHeight := 8 + TitleHeight + 6;
+  Inc(TotalHeight, FWrappedAbove.Count * LineHeight);
+  Inc(TotalHeight, Max(1, FWrappedMatch.Count) * LineHeight);
+  Inc(TotalHeight, FWrappedBelow.Count * LineHeight);
+  Inc(TotalHeight, 16);
+
+  MaxAvailableHeight := Max(120, MatchesPanel.ClientHeight - ResultsHeaderPanel.Height - 24);
+  Result := EnsureRange(TotalHeight, 90, MaxAvailableHeight);
 end;
 
 procedure TMainForm.ExpandToggleForItem(AItem: TListItem);
@@ -557,7 +581,7 @@ begin
   if FToggleMatch = nil then
     Exit;
 
-  MaxWidth := Max(120, TogglePanel.ClientWidth - 24);
+  MaxWidth := Max(120, MatchesListView.ClientWidth - 24);
   FTogglePaintBox.Canvas.Font.Name := 'Consolas';
   FTogglePaintBox.Canvas.Font.Size := 9;
   FTogglePaintBox.Canvas.Font.Style := [];

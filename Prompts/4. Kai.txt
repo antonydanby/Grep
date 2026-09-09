@@ -28,3 +28,23 @@ When testing I was searching through large codebases it took a matter of a numbe
 - The TProgress bar should be Style := pbstMarquee. I have created one in the GrepVCL project
 - All these UI changes are for both GrepVCL and GrepFMX 
 
+----------
+
+With the last fix you have broken the VCL and the FMX projects. 
+When I click Search it remains and Found 0 files and does not find anything. Investigate and fix please
+
+----------
+
+While testing I noticed in the GrepVCL and the GrepFMX projects that when the results are shown in the TListView and the user clicks on them to see the actual lines then the spaces are not preserved in that view, so I should be seeing blocks of code with outdents, but it looks like the lines are being trimmed. I checked the GrepCLI project and the spaces have not been removed here. Investigate and fix please.
+
+----------
+
+While testing I noticed in the GrepVCL and the GrepFMX projects I noticed that if I specified a number > 10 for the context lines then I could not see the line highlighted anymore. 
+
+- This was observable when I set context lines to 20. 
+- What context lines should show is n lines above and n lines below
+- The actual line should highlighted and when expanded on the initial display
+  - If set to 10, then when expanded it should be capable of showing 21 lines, 
+      - with the highlighted line in centre and 10 lines above and 10 below
+
+

@@ -61,7 +61,7 @@ implementation
 const
   cDetailsPadding = 14;
   cCollapsedHeight = 112;
-  cExpandedMaxHeight = 340;
+  cMinListHeight = 120;
 
 function NormalizePreviewText(const AText: string): string;
 begin
@@ -74,10 +74,14 @@ end;
 procedure AddWrappedParagraph(ACanvas: TCanvas; ALines: TStrings; const AParagraph: string;
   const AMaxWidth: Single);
 var
-  Words: TStringList;
-  CurrentLine: string;
-  Candidate: string;
-  I: Integer;
+  Remaining: string;
+  BreakPos: Integer;
+  LastSpace: Integer;
+  Prefix: string;
+  Low: Integer;
+  High: Integer;
+  Mid: Integer;
+  Best: Integer;
 begin
   if AParagraph = '' then
   begin
@@ -85,36 +89,41 @@ begin
     Exit;
   end;
 
-  Words := TStringList.Create;
-  try
-    ExtractStrings([' '], [], PChar(AParagraph), Words);
-    if Words.Count = 0 then
+  Remaining := AParagraph;
+  while Remaining <> '' do
+  begin
+    if (AMaxWidth <= 0) or (ACanvas.TextWidth(Remaining) <= AMaxWidth) then
     begin
-      ALines.Add(AParagraph);
+      ALines.Add(Remaining);
       Exit;
     end;
 
-    CurrentLine := '';
-    for I := 0 to Words.Count - 1 do
+    Low := 1;
+    High := Length(Remaining);
+    Best := 1;
+    while Low <= High do
     begin
-      if CurrentLine = '' then
-        Candidate := Words[I]
-      else
-        Candidate := CurrentLine + ' ' + Words[I];
-
-      if (AMaxWidth > 0) and (CurrentLine <> '') and (ACanvas.TextWidth(Candidate) > AMaxWidth) then
+      Mid := (Low + High) div 2;
+      Prefix := Copy(Remaining, 1, Mid);
+      if ACanvas.TextWidth(Prefix) <= AMaxWidth then
       begin
-        ALines.Add(CurrentLine);
-        CurrentLine := Words[I];
+        Best := Mid;
+        Low := Mid + 1;
       end
       else
-        CurrentLine := Candidate;
+        High := Mid - 1;
     end;
 
-    if CurrentLine <> '' then
-      ALines.Add(CurrentLine);
-  finally
-    Words.Free;
+    BreakPos := Best;
+    LastSpace := BreakPos;
+    while (LastSpace > 1) and (Remaining[LastSpace] <> ' ') do
+      Dec(LastSpace);
+
+    if LastSpace > 1 then
+      BreakPos := LastSpace;
+
+    ALines.Add(Copy(Remaining, 1, BreakPos));
+    Delete(Remaining, 1, BreakPos);
   end;
 end;
 
@@ -256,7 +265,7 @@ begin
   end;
 
   FSelectedMatch := TMatchesData(AItem.TagObject);
-  FExpanded := False;
+  FExpanded := True;
   UpdateDetails;
 end;
 
@@ -322,6 +331,8 @@ function TMatchesDisplay.CalculateDetailHeight(ACanvas: TCanvas): Single;
 var
   LineHeight: Single;
   LineCount: Integer;
+  MaxAvailableHeight: Single;
+  ParentControl: TControl;
 begin
   BuildWrappedDetails(ACanvas);
 
@@ -336,7 +347,18 @@ begin
   if not FExpanded then
     Result := Max(cCollapsedHeight, Result)
   else
-    Result := Min(cExpandedMaxHeight, Max(cCollapsedHeight, Result));
+  begin
+    if (FDetailsPanel.Parent <> nil) and (FDetailsPanel.Parent is TControl) then
+    begin
+      ParentControl := TControl(FDetailsPanel.Parent);
+      MaxAvailableHeight := Max(cCollapsedHeight,
+        ParentControl.Size.Height - cMinListHeight - FDetailsPanel.Margins.Bottom);
+    end
+    else
+      MaxAvailableHeight := Result;
+
+    Result := Min(MaxAvailableHeight, Max(cCollapsedHeight, Result));
+  end;
 end;
 
 procedure TMatchesDisplay.DrawTextLine(ACanvas: TCanvas; const ARect: TRectF; const AText: string;
