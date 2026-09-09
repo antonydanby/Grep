@@ -76,7 +76,6 @@ type
     ResultsHeaderPanel: TPanel;
     ResultsTitleLabel: TLabel;
     ResultsStatusLabel: TLabel;
-    StatusBar1: TStatusBar;
     ProgressBar: TProgressBar;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
