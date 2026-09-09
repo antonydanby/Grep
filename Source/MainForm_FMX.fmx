@@ -63,13 +63,23 @@ object MainForm: TMainForm
         TabOrder = 0
         Text = 'Back'
       end
+      object StopButton: TButton
+        Position.X = 12.000000000000000000
+        Position.Y = 22.000000000000000000
+        Size.Width = 100.000000000000000000
+        Size.Height = 34.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        Text = 'Stop'
+        Visible = False
+      end
       object SearchButton: TButton
         Position.X = 124.000000000000000000
         Position.Y = 22.000000000000000000
         Size.Width = 100.000000000000000000
         Size.Height = 34.000000000000000000
         Size.PlatformDefault = False
-        TabOrder = 1
+        TabOrder = 2
         Text = 'Search'
       end
     end
@@ -535,6 +545,14 @@ object MainForm: TMainForm
             Size.PlatformDefault = False
             Text = 'Ready'
             TabOrder = 1
+          end
+          object SearchIndicator: TAniIndicator
+            Position.X = 872.000000000000000000
+            Position.Y = 20.000000000000000000
+            Size.Width = 28.000000000000000000
+            Size.Height = 28.000000000000000000
+            Size.PlatformDefault = False
+            Visible = False
           end
         end
         object ResultsSurface: TRectangle

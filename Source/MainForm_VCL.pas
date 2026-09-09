@@ -33,6 +33,7 @@ type
     SubtitleLabel: TLabel;
     btnSearch: TButton;
     btnClear: TButton;
+    btnStop: TButton;
     BodyPanel: TPanel;
     FiltersPanel: TPanel;
     FiltersScrollBox: TScrollBox;
@@ -76,11 +77,13 @@ type
     ResultsTitleLabel: TLabel;
     ResultsStatusLabel: TLabel;
     StatusBar1: TStatusBar;
+    ProgressBar: TProgressBar;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnBrowseClick(Sender: TObject);
     procedure btnSearchClick(Sender: TObject);
     procedure btnClearClick(Sender: TObject);
+    procedure btnStopClick(Sender: TObject);
     procedure ToggleModeChanged(Sender: TObject);
     procedure MatchesListViewSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
     procedure TogglePanelClick(Sender: TObject);
@@ -91,6 +94,7 @@ type
     FPendingMatchRequests: Integer;
     FMatchedFiles: Integer;
     FSearchFinished: Integer;
+    FSearchRequestId: Integer;
     FCurrentLinesAround: Integer;
     FSearching: Boolean;
 
@@ -103,7 +107,9 @@ type
 
     procedure ConfigureGrepFromForm;
     procedure ClearResults;
-    procedure FinalizeSearchIfReady;
+    procedure FinalizeSearchIfReady(const ASearchRequestId: Integer);
+    procedure StopSearch;
+    procedure UpdateSearchUi(const ASearching: Boolean);
     function ValidateInputs(out AFolder: string): Boolean;
     function BuildMatchDataList(AContents: TObjectList<TMatchedLines>): TObjectList<TMatchesData>;
     procedure UpdateModeState;
@@ -207,12 +213,14 @@ begin
   dtpDateFrom.Date := Now - 30;
   dtpDateTo.Date := Now;
   UpdateModeState;
+  UpdateSearchUi(False);
   ClearResults;
   UpdateStatusText('Configure the search options and start a new Grep.');
 end;
 
 procedure TMainForm.FormDestroy(Sender: TObject);
 begin
+  FGrep.Stop;
   FWrappedBelow.Free;
   FWrappedMatch.Free;
   FWrappedAbove.Free;
@@ -242,12 +250,12 @@ begin
   ClearResults;
   ConfigureGrepFromForm;
   FCurrentLinesAround := spnContextLines.Value;
+  TInterlocked.Increment(FSearchRequestId);
   TInterlocked.Exchange(FPendingMatchRequests, 0);
   TInterlocked.Exchange(FMatchedFiles, 0);
   TInterlocked.Exchange(FSearchFinished, 0);
   FSearching := True;
-  btnSearch.Enabled := False;
-  btnClear.Enabled := False;
+  UpdateSearchUi(True);
 
   if swReplaceMode.Checked then
     UpdateStatusText('Replacing matches...')
@@ -267,6 +275,11 @@ begin
 
   ClearResults;
   UpdateStatusText('Configure the search options and start a new Grep.');
+end;
+
+procedure TMainForm.btnStopClick(Sender: TObject);
+begin
+  StopSearch;
 end;
 
 procedure TMainForm.ToggleModeChanged(Sender: TObject);
@@ -345,6 +358,33 @@ begin
   end;
   CollapseTogglePanel(False);
   UpdateResultSummary;
+end;
+
+procedure TMainForm.UpdateSearchUi(const ASearching: Boolean);
+begin
+  btnSearch.Enabled := not ASearching;
+  btnClear.Enabled := not ASearching;
+  btnClear.Visible := not ASearching;
+  btnStop.Visible := ASearching;
+  ProgressBar.Visible := ASearching;
+end;
+
+procedure TMainForm.StopSearch;
+begin
+  if not FSearching then
+    Exit;
+
+  FGrep.Stop;
+  TInterlocked.Increment(FSearchRequestId);
+  TInterlocked.Exchange(FPendingMatchRequests, 0);
+  TInterlocked.Exchange(FSearchFinished, 0);
+  FSearching := False;
+  UpdateSearchUi(False);
+
+  if swReplaceMode.Checked then
+    UpdateStatusText('Replace stopped.')
+  else
+    UpdateStatusText('Search stopped.');
 end;
 
 function TMainForm.ValidateInputs(out AFolder: string): Boolean;
@@ -615,7 +655,9 @@ end;
 procedure TMainForm.HandleFileFound(const aFilename: string);
 var
   FileCount: Integer;
+  SearchRequestId: Integer;
 begin
+  SearchRequestId := TInterlocked.Add(FSearchRequestId, 0);
   FileCount := TInterlocked.Increment(FMatchedFiles);
   TInterlocked.Increment(FPendingMatchRequests);
   FGrep.RequestMatches(aFilename, FCurrentLinesAround);
@@ -623,6 +665,9 @@ begin
   TThread.Queue(nil,
     procedure
     begin
+      if SearchRequestId <> TInterlocked.Add(FSearchRequestId, 0) then
+        Exit;
+
       UpdateStatusText(Format('Collecting match details from %d file(s)...', [FileCount]));
     end);
 end;
@@ -630,7 +675,9 @@ end;
 procedure TMainForm.HandleRequestedContents(aContents: TObjectList<TMatchedLines>);
 var
   BuiltMatches: TObjectList<TMatchesData>;
+  SearchRequestId: Integer;
 begin
+  SearchRequestId := TInterlocked.Add(FSearchRequestId, 0);
   BuiltMatches := BuildMatchDataList(aContents);
   TThread.Queue(nil,
     procedure
@@ -639,6 +686,12 @@ begin
       MatchData: TMatchesData;
       Remaining: Integer;
     begin
+      if SearchRequestId <> TInterlocked.Add(FSearchRequestId, 0) then
+      begin
+        BuiltMatches.Free;
+        Exit;
+      end;
+
       try
         MatchesListView.Items.BeginUpdate;
         try
@@ -659,34 +712,39 @@ begin
         Remaining := TInterlocked.Decrement(FPendingMatchRequests);
         if Remaining < 0 then
           TInterlocked.Exchange(FPendingMatchRequests, 0);
-        FinalizeSearchIfReady;
+        FinalizeSearchIfReady(SearchRequestId);
       end;
     end);
 end;
 
 procedure TMainForm.HandleSearchCompleted;
+var
+  SearchRequestId: Integer;
 begin
+  SearchRequestId := TInterlocked.Add(FSearchRequestId, 0);
   TInterlocked.Exchange(FSearchFinished, 1);
   TThread.Queue(nil,
     procedure
     begin
-      FinalizeSearchIfReady;
+      FinalizeSearchIfReady(SearchRequestId);
     end);
 end;
 
-procedure TMainForm.FinalizeSearchIfReady;
+procedure TMainForm.FinalizeSearchIfReady(const ASearchRequestId: Integer);
 var
   Pending: Integer;
   FileCount: Integer;
   ResultCount: Integer;
 begin
+  if ASearchRequestId <> TInterlocked.Add(FSearchRequestId, 0) then
+    Exit;
+
   Pending := TInterlocked.Add(FPendingMatchRequests, 0);
-  if (TInterlocked.Add(FSearchFinished, 0) = 0) or (Pending <> 0) then
+  if (not FSearching) or (TInterlocked.Add(FSearchFinished, 0) = 0) or (Pending <> 0) then
     Exit;
 
   FSearching := False;
-  btnSearch.Enabled := True;
-  btnClear.Enabled := True;
+  UpdateSearchUi(False);
 
   FileCount := TInterlocked.Add(FMatchedFiles, 0);
   ResultCount := FMatches.Count;

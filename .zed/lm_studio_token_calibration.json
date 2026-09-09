@@ -1,0 +1,6 @@
+{
+  "http://localhost:1234::qwen/qwen3.8-27b": {
+    "ratio": 1.1762442937535362,
+    "samples": 4
+  }
+}

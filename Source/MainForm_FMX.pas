@@ -38,6 +38,7 @@ type
     SubtitleLabel: TLabel;
     ActionLayout: TLayout;
     BackButton: TButton;
+    StopButton: TButton;
     SearchButton: TButton;
     Pages: TTabControl;
     FiltersTab: TTabItem;
@@ -85,6 +86,7 @@ type
     ResultsHeader: TRectangle;
     ResultsTitleLabel: TLabel;
     ResultsStatusLabel: TLabel;
+    SearchIndicator: TAniIndicator;
     ResultsSurface: TRectangle;
     DetailsPanel: TRectangle;
     DetailsPaintBox: TPaintBox;
@@ -98,13 +100,14 @@ type
     FPendingMatchRequests: Integer;
     FMatchedFiles: Integer;
     FSearchFinished: Integer;
+    FSearchRequestId: Integer;
     FCurrentLinesAround: Integer;
     FSearching: Boolean;
     FFileIconBitmap: TBitmap;
     procedure BuildFileIconBitmap;
     procedure ConfigureGrepFromForm;
     procedure ClearResults;
-    procedure FinalizeSearchIfReady;
+    procedure FinalizeSearchIfReady(const ASearchRequestId: Integer);
     function ValidateInputs(out AFolder: string): Boolean;
     function BuildMatchDataList(AContents: TObjectList<TMatchedLines>): TObjectList<TMatchesData>;
     procedure UpdateModeState;
@@ -119,7 +122,10 @@ type
     procedure BrowseButtonClick(Sender: TObject);
     procedure SearchButtonClick(Sender: TObject);
     procedure BackButtonClick(Sender: TObject);
+    procedure StopButtonClick(Sender: TObject);
     procedure ToggleModeChanged(Sender: TObject);
+    procedure StopSearch;
+    procedure UpdateSearchUi(const ASearching: Boolean);
   end;
 
 var
@@ -133,6 +139,7 @@ procedure TMainForm.FormCreate(Sender: TObject);
 begin
   SearchButton.OnClick := SearchButtonClick;
   BackButton.OnClick := BackButtonClick;
+  StopButton.OnClick := StopButtonClick;
   BrowseButton.OnClick := BrowseButtonClick;
   RegexSwitch.OnClick := ToggleModeChanged;
   CaseSensitiveSwitch.OnClick := ToggleModeChanged;
@@ -170,6 +177,7 @@ begin
   WildcardsEdit.Text := '*.*';
 
   UpdateModeState;
+  UpdateSearchUi(False);
   ClearResults;
   ShowFiltersPage;
   UpdateStatusText('Configure the search options and start a new Grep.');
@@ -177,6 +185,7 @@ end;
 
 procedure TMainForm.FormDestroy(Sender: TObject);
 begin
+  FGrep.Stop;
   FMatchesDisplay.Free;
   FGrep.Free;
   FFileIconBitmap.Free;
@@ -237,12 +246,12 @@ begin
   ClearResults;
   ConfigureGrepFromForm;
   FCurrentLinesAround := Round(ContextLinesBox.Value);
+  TInterlocked.Increment(FSearchRequestId);
   TInterlocked.Exchange(FPendingMatchRequests, 0);
   TInterlocked.Exchange(FMatchedFiles, 0);
   TInterlocked.Exchange(FSearchFinished, 0);
   FSearching := True;
-  SearchButton.Enabled := False;
-  BackButton.Enabled := False;
+  UpdateSearchUi(True);
   ShowResultsPage;
 
   if ReplaceModeSwitch.IsChecked then
@@ -269,6 +278,11 @@ begin
 
   ClearResults;
   UpdateStatusText('Configure the search options and start a new Grep.');
+end;
+
+procedure TMainForm.StopButtonClick(Sender: TObject);
+begin
+  StopSearch;
 end;
 
 procedure TMainForm.ToggleModeChanged(Sender: TObject);
@@ -340,6 +354,34 @@ procedure TMainForm.ClearResults;
 begin
   FMatchesDisplay.ClearBrowser;
   UpdateResultSummary;
+end;
+
+procedure TMainForm.UpdateSearchUi(const ASearching: Boolean);
+begin
+  SearchButton.Enabled := not ASearching;
+  BackButton.Enabled := not ASearching;
+  BackButton.Visible := not ASearching;
+  StopButton.Visible := ASearching;
+  SearchIndicator.Enabled := ASearching;
+  SearchIndicator.Visible := ASearching;
+end;
+
+procedure TMainForm.StopSearch;
+begin
+  if not FSearching then
+    Exit;
+
+  FGrep.Stop;
+  TInterlocked.Increment(FSearchRequestId);
+  TInterlocked.Exchange(FPendingMatchRequests, 0);
+  TInterlocked.Exchange(FSearchFinished, 0);
+  FSearching := False;
+  UpdateSearchUi(False);
+
+  if ReplaceModeSwitch.IsChecked then
+    UpdateStatusText('Replace stopped.')
+  else
+    UpdateStatusText('Search stopped.');
 end;
 
 function TMainForm.ValidateInputs(out AFolder: string): Boolean;
@@ -453,7 +495,9 @@ end;
 procedure TMainForm.HandleFileFound(const AFileName: string);
 var
   FileCount: Integer;
+  SearchRequestId: Integer;
 begin
+  SearchRequestId := TInterlocked.Add(FSearchRequestId, 0);
   FileCount := TInterlocked.Increment(FMatchedFiles);
   TInterlocked.Increment(FPendingMatchRequests);
   FGrep.RequestMatches(AFileName, FCurrentLinesAround);
@@ -461,6 +505,9 @@ begin
   TThread.Queue(nil,
     procedure
     begin
+      if SearchRequestId <> TInterlocked.Add(FSearchRequestId, 0) then
+        Exit;
+
       UpdateStatusText(Format('Collecting match details from %d file(s)...', [FileCount]));
     end);
 end;
@@ -468,13 +515,21 @@ end;
 procedure TMainForm.HandleRequestedContents(AContents: TObjectList<TMatchedLines>);
 var
   BuiltMatches: TObjectList<TMatchesData>;
+  SearchRequestId: Integer;
 begin
+  SearchRequestId := TInterlocked.Add(FSearchRequestId, 0);
   BuiltMatches := BuildMatchDataList(AContents);
   TThread.Queue(nil,
     procedure
     var
       Remaining: Integer;
     begin
+      if SearchRequestId <> TInterlocked.Add(FSearchRequestId, 0) then
+      begin
+        BuiltMatches.Free;
+        Exit;
+      end;
+
       try
         FMatchesDisplay.AddMatches(BuiltMatches);
         UpdateResultSummary;
@@ -483,34 +538,39 @@ begin
         Remaining := TInterlocked.Decrement(FPendingMatchRequests);
         if Remaining < 0 then
           TInterlocked.Exchange(FPendingMatchRequests, 0);
-        FinalizeSearchIfReady;
+        FinalizeSearchIfReady(SearchRequestId);
       end;
     end);
 end;
 
 procedure TMainForm.HandleSearchCompleted;
+var
+  SearchRequestId: Integer;
 begin
+  SearchRequestId := TInterlocked.Add(FSearchRequestId, 0);
   TInterlocked.Exchange(FSearchFinished, 1);
   TThread.Queue(nil,
     procedure
     begin
-      FinalizeSearchIfReady;
+      FinalizeSearchIfReady(SearchRequestId);
     end);
 end;
 
-procedure TMainForm.FinalizeSearchIfReady;
+procedure TMainForm.FinalizeSearchIfReady(const ASearchRequestId: Integer);
 var
   Pending: Integer;
   FileCount: Integer;
   ResultCount: Integer;
 begin
+  if ASearchRequestId <> TInterlocked.Add(FSearchRequestId, 0) then
+    Exit;
+
   Pending := TInterlocked.Add(FPendingMatchRequests, 0);
-  if (TInterlocked.Add(FSearchFinished, 0) = 0) or (Pending <> 0) then
+  if (not FSearching) or (TInterlocked.Add(FSearchFinished, 0) = 0) or (Pending <> 0) then
     Exit;
 
   FSearching := False;
-  SearchButton.Enabled := True;
-  BackButton.Enabled := True;
+  UpdateSearchUi(False);
 
   FileCount := TInterlocked.Add(FMatchedFiles, 0);
   ResultCount := FMatchesDisplay.Count;

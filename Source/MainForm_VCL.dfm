@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = 'Grep'
-  ClientHeight = 761
+  ClientHeight = 769
   ClientWidth = 884
   Color = clBtnFace
   Constraints.MinHeight = 800
@@ -76,33 +76,43 @@ object MainForm: TMainForm
       TabOrder = 1
       OnClick = btnClearClick
     end
+    object btnStop: TButton
+      Left = 762
+      Top = 17
+      Width = 110
+      Height = 28
+      Anchors = [akTop, akRight]
+      Caption = 'Stop'
+      TabOrder = 2
+      Visible = False
+      OnClick = btnStopClick
+    end
   end
   object BodyPanel: TPanel
     Left = 0
     Top = 60
     Width = 884
-    Height = 682
+    Height = 690
     Align = alClient
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 1
-    ExplicitTop = 70
-    ExplicitHeight = 691
+    ExplicitHeight = 682
     object FiltersPanel: TPanel
       Left = 0
       Top = 0
       Width = 370
-      Height = 682
+      Height = 690
       Align = alLeft
       BevelOuter = bvNone
       ParentBackground = False
       TabOrder = 0
-      ExplicitHeight = 691
+      ExplicitHeight = 682
       object FiltersScrollBox: TScrollBox
         Left = 16
         Top = 16
         Width = 350
-        Height = 653
+        Height = 661
         VertScrollBar.Tracking = True
         Align = alCustom
         Anchors = [akLeft, akTop, akRight, akBottom]
@@ -110,7 +120,7 @@ object MainForm: TMainForm
         Color = clBtnFace
         ParentColor = False
         TabOrder = 0
-        ExplicitHeight = 659
+        ExplicitHeight = 653
         object SearchCard: TPanel
           Left = 0
           Top = 0
@@ -120,8 +130,6 @@ object MainForm: TMainForm
           BevelOuter = bvNone
           ParentBackground = False
           TabOrder = 0
-          ExplicitLeft = 4
-          ExplicitTop = -6
           object SearchCardTitle: TLabel
             Left = 14
             Top = 12
@@ -256,14 +264,14 @@ object MainForm: TMainForm
         end
         object FiltersCard: TPanel
           Left = 0
-          Top = 341
+          Top = 349
           Width = 350
           Height = 312
           Align = alBottom
           BevelOuter = bvNone
           ParentBackground = False
           TabOrder = 1
-          ExplicitTop = 347
+          ExplicitTop = 341
           object FiltersCardTitle: TLabel
             Left = 14
             Top = 12
@@ -380,13 +388,13 @@ object MainForm: TMainForm
           Left = 0
           Top = 337
           Width = 350
-          Height = 4
+          Height = 12
           Align = alClient
           BevelOuter = bvNone
           Constraints.MinHeight = 4
           ParentBackground = False
           TabOrder = 2
-          ExplicitHeight = 10
+          ExplicitHeight = 4
         end
       end
     end
@@ -394,29 +402,26 @@ object MainForm: TMainForm
       Left = 370
       Top = 0
       Width = 514
-      Height = 682
+      Height = 690
       Align = alClient
       BevelOuter = bvNone
       ParentBackground = False
       TabOrder = 1
-      ExplicitHeight = 691
+      ExplicitHeight = 682
       object MatchesPanel: TPanel
         Left = 0
         Top = 0
         Width = 514
-        Height = 682
+        Height = 690
         Align = alClient
         BevelOuter = bvNone
         BorderWidth = 12
         ParentBackground = False
         TabOrder = 0
-        ExplicitLeft = 6
-        ExplicitTop = 16
-        ExplicitWidth = 490
-        ExplicitHeight = 657
+        ExplicitHeight = 682
         object TogglePanel: TPanel
           Left = 12
-          Top = 670
+          Top = 678
           Width = 490
           Height = 0
           Align = alBottom
@@ -426,15 +431,13 @@ object MainForm: TMainForm
           TabOrder = 0
           Visible = False
           OnClick = TogglePanelClick
-          ExplicitLeft = 4
-          ExplicitTop = 653
-          ExplicitWidth = 482
+          ExplicitTop = 670
         end
         object MatchesListView: TListView
           Left = 12
           Top = 68
           Width = 490
-          Height = 602
+          Height = 610
           Align = alClient
           Columns = <
             item
@@ -455,10 +458,7 @@ object MainForm: TMainForm
           TabOrder = 1
           ViewStyle = vsReport
           OnSelectItem = MatchesListViewSelectItem
-          ExplicitLeft = 4
-          ExplicitTop = 60
-          ExplicitWidth = 482
-          ExplicitHeight = 593
+          ExplicitHeight = 602
         end
         object ResultsHeaderPanel: TPanel
           Left = 12
@@ -469,9 +469,9 @@ object MainForm: TMainForm
           BevelOuter = bvNone
           ParentBackground = False
           TabOrder = 2
-          ExplicitLeft = 4
-          ExplicitTop = 4
-          ExplicitWidth = 482
+          DesignSize = (
+            490
+            56)
           object ResultsTitleLabel: TLabel
             Left = 0
             Top = 8
@@ -498,18 +498,26 @@ object MainForm: TMainForm
             Font.Style = []
             ParentFont = False
           end
+          object ProgressBar: TProgressBar
+            Left = 216
+            Top = 27
+            Width = 274
+            Height = 17
+            Anchors = [akTop, akRight]
+            Style = pbstMarquee
+            TabOrder = 0
+            Visible = False
+          end
         end
       end
     end
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 742
+    Top = 750
     Width = 884
     Height = 19
     Panels = <>
-    ExplicitLeft = 384
-    ExplicitTop = 680
-    ExplicitWidth = 0
+    ExplicitTop = 742
   end
 end

@@ -10,7 +10,8 @@ interface
    System.Threading,
    System.Math,
    System.IOUtils,
-   System.StrUtils;
+   System.StrUtils,
+   System.SyncObjs;
 
 type
   TMatchedLines = class
@@ -40,6 +41,7 @@ type
     FMaxSize: Int64;
     FDateFrom: TDateTime;
     FDateTo: TDateTime;
+    FSearchToken: Integer;
 
     FOnFileFound: TOnFileFound;
     FOnRequestedContents: TOnRequestedContents;
@@ -48,14 +50,19 @@ type
     function FileMatchesFilters(const aFile: string): Boolean;
     function IsBinaryFile(const aFile: string): Boolean;
     function IsHidden(const aFile: string): Boolean;
+    function IsSearchCancelled(const ASearchToken: Integer): Boolean;
     function TextMatches(const aText: string): Boolean;
-    function FileContainsMatch(const aFile: string): Boolean;
-    function GetMatches(const aFile: string; aLinesAround: Integer): TObjectList<TMatchedLines>;
+    function FileContainsMatch(const aFile: string; const ASearchToken: Integer): Boolean;
+    function GetMatches(const aFile: string; aLinesAround: Integer;
+      const ASearchToken: Integer): TObjectList<TMatchedLines>;
+    procedure SearchFolder(const AFolder: string; const ASearchToken: Integer);
+    procedure ReplaceFolder(const AFolder: string; const ASearchToken: Integer);
   public
     constructor Create;
 
     procedure Search(const aFolder: string);
     procedure Replace(const aFolder: string);
+    procedure Stop;
 
     procedure RequestMatches(const aFilename: string; aLinesAround: Integer);
 
@@ -115,19 +122,47 @@ end;
 
 function TGrep.IsBinaryFile(const aFile: string): Boolean;
 var
-  Bytes: TBytes;
+  Stream: TFileStream;
+  Buffer: array[0..1023] of Byte;
+  BytesRead: Integer;
   I: Integer;
 begin
   Result := False;
-  Bytes := TFile.ReadAllBytes(aFile);
-  for I := 0 to Min(1024, Length(Bytes)-1) do
-    if Bytes[I] = 0 then
-      Exit(True);
+  try
+    Stream := TFile.OpenRead(aFile);
+    try
+      BytesRead := Stream.Read(Buffer, SizeOf(Buffer));
+      for I := 0 to BytesRead - 1 do
+        if Buffer[I] = 0 then
+          Exit(True);
+    finally
+      Stream.Free;
+    end;
+  except
+    Exit(True);
+  end;
 end;
 
 function TGrep.IsHidden(const aFile: string): Boolean;
+var
+  Attributes: Integer;
+  Name: string;
 begin
-  Result := TFileAttribute.faHidden in TFile.GetAttributes(aFile);
+  Name := ExtractFileName(ExcludeTrailingPathDelimiter(aFile));
+  Result := Name.StartsWith('.');
+  if Result then
+    Exit;
+
+  Attributes := FileGetAttr(aFile);
+  if Attributes = -1 then
+    Exit(False);
+
+  Result := (Attributes and faHidden) <> 0;
+end;
+
+function TGrep.IsSearchCancelled(const ASearchToken: Integer): Boolean;
+begin
+  Result := TInterlocked.Add(FSearchToken, 0) <> ASearchToken;
 end;
 
 function TGrep.TextMatches(const aText: string): Boolean;
@@ -146,9 +181,19 @@ begin
     Result := TRegEx.IsMatch(aText, FSearchText, GetRegexOptions(FCaseSensitive));
 end;
 
-function TGrep.FileContainsMatch(const aFile: string): Boolean;
+function TGrep.FileContainsMatch(const aFile: string; const ASearchToken: Integer): Boolean;
 begin
-  Result := TextMatches(TFile.ReadAllText(aFile));
+  if IsSearchCancelled(ASearchToken) then
+    Exit(False);
+
+  try
+    Result := TextMatches(TFile.ReadAllText(aFile));
+  except
+    Exit(False);
+  end;
+
+  if Result and IsSearchCancelled(ASearchToken) then
+    Result := False;
 end;
 
 function TGrep.FileMatchesFilters(const aFile: string): Boolean;
@@ -170,7 +215,8 @@ begin
   end;
 end;
 
-function TGrep.GetMatches(const aFile: string; aLinesAround: Integer): TObjectList<TMatchedLines>;
+function TGrep.GetMatches(const aFile: string; aLinesAround: Integer;
+  const ASearchToken: Integer): TObjectList<TMatchedLines>;
 var
   Lines: TStringList;
   I: Integer;
@@ -181,15 +227,23 @@ begin
   Result := TObjectList<TMatchedLines>.Create(True);
   Lines := TStringList.Create;
   try
-    Lines.LoadFromFile(aFile);
+    if IsSearchCancelled(ASearchToken) then
+      Exit;
+
+    try
+      Lines.LoadFromFile(aFile);
+    except
+      Exit;
+    end;
 
     if FSearchMode = gsmRegex then
-    begin
       Regex := TRegEx.Create(FSearchText, GetRegexOptions(FCaseSensitive));
-    end;
 
     for I := 0 to Lines.Count - 1 do
     begin
+      if IsSearchCancelled(ASearchToken) then
+        Exit;
+
       if FSearchMode = gsmText then
       begin
         if FCaseSensitive then
@@ -233,94 +287,194 @@ begin
   end;
 end;
 
-procedure TGrep.Search(const aFolder: string);
+procedure TGrep.SearchFolder(const AFolder: string; const ASearchToken: Integer);
+var
+  FileName: string;
+  SubFolder: string;
+  Files: TArray<string>;
+  SubFolders: TArray<string>;
 begin
+  if IsSearchCancelled(ASearchToken) then
+    Exit;
+
+  try
+    Files := TDirectory.GetFiles(AFolder, FWildcards, TSearchOption.soTopDirectoryOnly);
+  except
+    Exit;
+  end;
+
+  for FileName in Files do
+  begin
+    if IsSearchCancelled(ASearchToken) then
+      Exit;
+
+    if FileMatchesFilters(FileName) and FileContainsMatch(FileName, ASearchToken) then
+    begin
+      if IsSearchCancelled(ASearchToken) then
+        Exit;
+
+      if Assigned(FOnFileFound) then
+        FOnFileFound(FileName);
+    end;
+  end;
+
+  if not FIncludeSubfolders then
+    Exit;
+
+  try
+    SubFolders := TDirectory.GetDirectories(AFolder);
+  except
+    Exit;
+  end;
+
+  for SubFolder in SubFolders do
+  begin
+    if IsSearchCancelled(ASearchToken) then
+      Exit;
+
+    if FExcludeHidden and IsHidden(SubFolder) then
+      Continue;
+
+    SearchFolder(SubFolder, ASearchToken);
+  end;
+end;
+
+procedure TGrep.Search(const aFolder: string);
+var
+  SearchToken: Integer;
+begin
+  SearchToken := TInterlocked.Increment(FSearchToken);
   TTask.Run(
     procedure
-    var
-      Files: TArray<string>;
-      FileName: string;
     begin
       try
-        Files := TDirectory.GetFiles(
-          aFolder,
-          FWildcards,
-          GetSearchOption(FIncludeSubfolders)
-        );
-
-        for FileName in Files do
-        begin
-          if FileMatchesFilters(FileName) and FileContainsMatch(FileName) then
-          begin
-            if Assigned(FOnFileFound) then
-              FOnFileFound(FileName);
-          end;
-        end;
+        SearchFolder(aFolder, SearchToken);
       finally
-        if Assigned(FOnSearchCompleted) then
+        if not IsSearchCancelled(SearchToken) and Assigned(FOnSearchCompleted) then
           FOnSearchCompleted;
       end;
     end
   );
 end;
 
-procedure TGrep.Replace(const aFolder: string);
+procedure TGrep.ReplaceFolder(const AFolder: string; const ASearchToken: Integer);
+var
+  FileName: string;
+  SubFolder: string;
+  SL: TStringList;
+  Modified: Boolean;
+  Files: TArray<string>;
+  SubFolders: TArray<string>;
 begin
+  if IsSearchCancelled(ASearchToken) then
+    Exit;
+
+  try
+    Files := TDirectory.GetFiles(AFolder, FWildcards, TSearchOption.soTopDirectoryOnly);
+  except
+    Exit;
+  end;
+
+  for FileName in Files do
+  begin
+    if IsSearchCancelled(ASearchToken) then
+      Exit;
+
+    if not FileMatchesFilters(FileName) then
+      Continue;
+
+    SL := TStringList.Create;
+    try
+      try
+        SL.LoadFromFile(FileName);
+      except
+        Continue;
+      end;
+
+      if IsSearchCancelled(ASearchToken) then
+        Exit;
+
+      Modified := TextMatches(SL.Text);
+      if Modified then
+      begin
+        if FSearchMode = gsmText then
+          SL.Text := SL.Text.Replace(FSearchText, FReplaceText, GetReplaceFlags(FCaseSensitive))
+        else
+          SL.Text := TRegEx.Replace(SL.Text, FSearchText, FReplaceText, GetRegexOptions(FCaseSensitive));
+
+        if IsSearchCancelled(ASearchToken) then
+          Exit;
+
+        try
+          SL.SaveToFile(FileName);
+        except
+          Continue;
+        end;
+
+        if IsSearchCancelled(ASearchToken) then
+          Exit;
+
+        if Assigned(FOnFileFound) then
+          FOnFileFound(FileName);
+      end;
+    finally
+      SL.Free;
+    end;
+  end;
+
+  if not FIncludeSubfolders then
+    Exit;
+
+  try
+    SubFolders := TDirectory.GetDirectories(AFolder);
+  except
+    Exit;
+  end;
+
+  for SubFolder in SubFolders do
+  begin
+    if IsSearchCancelled(ASearchToken) then
+      Exit;
+
+    if FExcludeHidden and IsHidden(SubFolder) then
+      Continue;
+
+    ReplaceFolder(SubFolder, ASearchToken);
+  end;
+end;
+
+procedure TGrep.Replace(const aFolder: string);
+var
+  SearchToken: Integer;
+begin
+  SearchToken := TInterlocked.Increment(FSearchToken);
   TTask.Run(
     procedure
-    var
-      Files: TArray<string>;
-      FileName: string;
-      SL: TStringList;
-      Modified: Boolean;
     begin
       try
-        Files := TDirectory.GetFiles(
-          aFolder,
-          FWildcards,
-          GetSearchOption(FIncludeSubfolders)
-        );
-
-        for FileName in Files do
-        begin
-          if not FileMatchesFilters(FileName) then
-            Continue;
-
-          SL := TStringList.Create;
-          try
-            SL.LoadFromFile(FileName);
-            Modified := TextMatches(SL.Text);
-
-            if Modified then
-            begin
-              if FSearchMode = gsmText then
-                SL.Text := SL.Text.Replace(FSearchText, FReplaceText, GetReplaceFlags(FCaseSensitive))
-              else
-                SL.Text := TRegEx.Replace(SL.Text, FSearchText, FReplaceText, GetRegexOptions(FCaseSensitive));
-
-              SL.SaveToFile(FileName);
-              if Assigned(FOnFileFound) then
-                FOnFileFound(FileName);
-            end;
-          finally
-            SL.Free;
-          end;
-        end;
+        ReplaceFolder(aFolder, SearchToken);
       finally
-        if Assigned(FOnSearchCompleted) then
+        if not IsSearchCancelled(SearchToken) and Assigned(FOnSearchCompleted) then
           FOnSearchCompleted;
       end;
     end
   );
+end;
+
+procedure TGrep.Stop;
+begin
+  TInterlocked.Increment(FSearchToken);
 end;
 
 procedure TGrep.RequestMatches(const aFilename: string; aLinesAround: Integer);
 var
   L: TObjectList<TMatchedLines>;
+  SearchToken: Integer;
 begin
-  L := GetMatches(aFilename, aLinesAround);
+  SearchToken := TInterlocked.Add(FSearchToken, 0);
+  L := GetMatches(aFilename, aLinesAround, SearchToken);
   try
-    if Assigned(FOnRequestedContents) then
+    if not IsSearchCancelled(SearchToken) and Assigned(FOnRequestedContents) then
       FOnRequestedContents(L);
   finally
     L.Free;

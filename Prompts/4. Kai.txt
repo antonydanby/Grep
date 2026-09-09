@@ -6,3 +6,25 @@ For instance, let's :
 2. Change all TTogleSwitch's for traditional check boxes
 3. The Blue HeaderPanel ( $00975C2C ) is possibly too modern
 
+-----------
+
+# Observations
+When testing I was searching through large codebases it took a matter of a number of minutes before I had found everything, but with 30 seconds I could see the files and lines I had been searching for. So what we need to add to Grep.Core is a way to stop the search cleanly and for the Search and Clear buttons to come back to enabled immediately upon stopping. 
+
+## What we need:
+- Add to Grep.Core a way to stop the search cleanly 
+
+## When Starting the Search
+- We need a Stop button and a progress bar to appear when we have started searching and to both disappear when we click Stop. 
+- The stop button could go where the Clear button is now
+- The progress bar should also disappear 
+
+## When Search is Stopped
+- When the Search is stopped then Search and Clear buttons to come back to enabled immediately.
+- The Stop button should disappear
+- The progress bar should also disappear 
+
+## Important
+- The TProgress bar should be Style := pbstMarquee. I have created one in the GrepVCL project
+- All these UI changes are for both GrepVCL and GrepFMX 
+
