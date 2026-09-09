@@ -4,7 +4,7 @@ object MainForm: TMainForm
   Caption = 'Grep'
   ClientHeight = 761
   ClientWidth = 884
-  Color = clWhite
+  Color = clBtnFace
   Constraints.MinHeight = 800
   Constraints.MinWidth = 900
   Font.Charset = DEFAULT_CHARSET
@@ -20,23 +20,22 @@ object MainForm: TMainForm
     Left = 0
     Top = 0
     Width = 884
-    Height = 70
+    Height = 60
     Align = alTop
     BevelOuter = bvNone
-    Color = 9919532
     ParentBackground = False
     TabOrder = 0
     DesignSize = (
       884
-      70)
+      60)
     object TitleLabel: TLabel
       Left = 24
       Top = 6
-      Width = 95
+      Width = 79
       Height = 25
-      Caption = 'Quick Grep'
+      Caption = 'Grep VCL'
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWhite
+      Font.Color = clWindowText
       Font.Height = -19
       Font.Name = 'Segoe UI Semibold'
       Font.Style = []
@@ -51,15 +50,15 @@ object MainForm: TMainForm
         'Search with text or regex, preview match context, and optionally' +
         ' replace.'
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWhite
+      Font.Color = clGrayText
       Font.Height = -12
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
     end
     object btnSearch: TButton
-      Left = 636
-      Top = 22
+      Left = 646
+      Top = 17
       Width = 110
       Height = 28
       Anchors = [akTop, akRight]
@@ -68,8 +67,8 @@ object MainForm: TMainForm
       OnClick = btnSearchClick
     end
     object btnClear: TButton
-      Left = 752
-      Top = 22
+      Left = 762
+      Top = 17
       Width = 110
       Height = 28
       Anchors = [akTop, akRight]
@@ -80,36 +79,38 @@ object MainForm: TMainForm
   end
   object BodyPanel: TPanel
     Left = 0
-    Top = 70
+    Top = 60
     Width = 884
-    Height = 691
+    Height = 682
     Align = alClient
     BevelOuter = bvNone
-    Color = 16053485
     ParentBackground = False
     TabOrder = 1
+    ExplicitTop = 70
+    ExplicitHeight = 691
     object FiltersPanel: TPanel
       Left = 0
       Top = 0
       Width = 370
-      Height = 691
+      Height = 682
       Align = alLeft
       BevelOuter = bvNone
-      Color = 16053485
       ParentBackground = False
       TabOrder = 0
+      ExplicitHeight = 691
       object FiltersScrollBox: TScrollBox
         Left = 16
         Top = 16
         Width = 350
-        Height = 659
+        Height = 653
         VertScrollBar.Tracking = True
         Align = alCustom
         Anchors = [akLeft, akTop, akRight, akBottom]
         BorderStyle = bsNone
-        Color = 16053485
+        Color = clBtnFace
         ParentColor = False
         TabOrder = 0
+        ExplicitHeight = 659
         object SearchCard: TPanel
           Left = 0
           Top = 0
@@ -117,9 +118,10 @@ object MainForm: TMainForm
           Height = 337
           Align = alTop
           BevelOuter = bvNone
-          Color = clWhite
           ParentBackground = False
           TabOrder = 0
+          ExplicitLeft = 4
+          ExplicitTop = -6
           object SearchCardTitle: TLabel
             Left = 14
             Top = 12
@@ -176,27 +178,6 @@ object MainForm: TMainForm
             Height = 15
             Caption = 'Context lines'
           end
-          object lblRegex: TLabel
-            Left = 14
-            Top = 261
-            Width = 50
-            Height = 15
-            Caption = 'Use regex'
-          end
-          object lblCaseSensitive: TLabel
-            Left = 14
-            Top = 287
-            Width = 73
-            Height = 15
-            Caption = 'Case sensitive'
-          end
-          object lblReplaceMode: TLabel
-            Left = 14
-            Top = 313
-            Width = 75
-            Height = 15
-            Caption = 'Replace mode'
-          end
           object edtFolder: TEdit
             Left = 14
             Top = 74
@@ -245,41 +226,44 @@ object MainForm: TMainForm
             TabOrder = 5
             Value = 3
           end
-          object swRegex: TToggleSwitch
-            Left = 246
-            Top = 258
-            Width = 73
-            Height = 20
+          object swRegex: TCheckBox
+            Left = 14
+            Top = 259
+            Width = 304
+            Height = 17
+            Caption = 'Use regex'
             TabOrder = 6
             OnClick = ToggleModeChanged
           end
-          object swCaseSensitive: TToggleSwitch
-            Left = 246
-            Top = 284
-            Width = 73
-            Height = 20
+          object swCaseSensitive: TCheckBox
+            Left = 14
+            Top = 285
+            Width = 304
+            Height = 17
+            Caption = 'Case sensitive'
             TabOrder = 7
             OnClick = ToggleModeChanged
           end
-          object swReplaceMode: TToggleSwitch
-            Left = 246
-            Top = 310
-            Width = 73
-            Height = 20
+          object swReplaceMode: TCheckBox
+            Left = 14
+            Top = 311
+            Width = 304
+            Height = 17
+            Caption = 'Replace mode'
             TabOrder = 8
             OnClick = ToggleModeChanged
           end
         end
         object FiltersCard: TPanel
           Left = 0
-          Top = 347
+          Top = 341
           Width = 350
           Height = 312
           Align = alBottom
           BevelOuter = bvNone
-          Color = clWhite
           ParentBackground = False
           TabOrder = 1
+          ExplicitTop = 347
           object FiltersCardTitle: TLabel
             Left = 14
             Top = 12
@@ -301,41 +285,6 @@ object MainForm: TMainForm
             Brush.Color = 15263976
             Pen.Color = 15263976
           end
-          object lblIncludeSubfolders: TLabel
-            Left = 14
-            Top = 56
-            Width = 97
-            Height = 15
-            Caption = 'Include subfolders'
-          end
-          object lblIncludeHidden: TLabel
-            Left = 14
-            Top = 82
-            Width = 103
-            Height = 15
-            Caption = 'Include hidden files'
-          end
-          object lblIncludeBinary: TLabel
-            Left = 14
-            Top = 108
-            Width = 99
-            Height = 15
-            Caption = 'Include binary files'
-          end
-          object lblUseDateFrom: TLabel
-            Left = 14
-            Top = 142
-            Width = 125
-            Height = 15
-            Caption = 'Use modified from date'
-          end
-          object lblUseDateTo: TLabel
-            Left = 14
-            Top = 199
-            Width = 110
-            Height = 15
-            Caption = 'Use modified to date'
-          end
           object lblMinSize: TLabel
             Left = 14
             Top = 256
@@ -350,33 +299,38 @@ object MainForm: TMainForm
             Height = 15
             Caption = 'Max file size (bytes)'
           end
-          object swIncludeSubfolders: TToggleSwitch
-            Left = 246
-            Top = 53
-            Width = 73
-            Height = 20
-            State = tssOn
+          object swIncludeSubfolders: TCheckBox
+            Left = 14
+            Top = 56
+            Width = 304
+            Height = 17
+            Caption = 'Include subfolders'
+            Checked = True
+            State = cbChecked
             TabOrder = 0
           end
-          object swIncludeHidden: TToggleSwitch
-            Left = 246
-            Top = 79
-            Width = 73
-            Height = 20
+          object swIncludeHidden: TCheckBox
+            Left = 14
+            Top = 82
+            Width = 304
+            Height = 17
+            Caption = 'Include hidden files'
             TabOrder = 1
           end
-          object swIncludeBinary: TToggleSwitch
-            Left = 246
-            Top = 105
-            Width = 73
-            Height = 20
+          object swIncludeBinary: TCheckBox
+            Left = 14
+            Top = 108
+            Width = 304
+            Height = 17
+            Caption = 'Include binary files'
             TabOrder = 2
           end
-          object swUseDateFrom: TToggleSwitch
-            Left = 246
-            Top = 139
-            Width = 73
-            Height = 20
+          object swUseDateFrom: TCheckBox
+            Left = 14
+            Top = 138
+            Width = 304
+            Height = 17
+            Caption = 'Use modified from date'
             TabOrder = 3
             OnClick = ToggleModeChanged
           end
@@ -389,11 +343,12 @@ object MainForm: TMainForm
             Time = 46255.000000000000000000
             TabOrder = 4
           end
-          object swUseDateTo: TToggleSwitch
-            Left = 246
-            Top = 196
-            Width = 73
-            Height = 20
+          object swUseDateTo: TCheckBox
+            Left = 14
+            Top = 195
+            Width = 304
+            Height = 17
+            Caption = 'Use modified to date'
             TabOrder = 5
             OnClick = ToggleModeChanged
           end
@@ -425,13 +380,13 @@ object MainForm: TMainForm
           Left = 0
           Top = 337
           Width = 350
-          Height = 10
+          Height = 4
           Align = alClient
           BevelOuter = bvNone
-          Color = clWhite
           Constraints.MinHeight = 4
           ParentBackground = False
           TabOrder = 2
+          ExplicitHeight = 10
         end
       end
     end
@@ -439,30 +394,30 @@ object MainForm: TMainForm
       Left = 370
       Top = 0
       Width = 514
-      Height = 691
+      Height = 682
       Align = alClient
       BevelOuter = bvNone
-      Color = 16053485
       ParentBackground = False
       TabOrder = 1
-      DesignSize = (
-        514
-        691)
+      ExplicitHeight = 691
       object MatchesPanel: TPanel
-        Left = 6
-        Top = 16
-        Width = 490
-        Height = 657
-        Anchors = [akLeft, akTop, akRight, akBottom]
+        Left = 0
+        Top = 0
+        Width = 514
+        Height = 682
+        Align = alClient
         BevelOuter = bvNone
-        BorderWidth = 4
-        Color = clWhite
+        BorderWidth = 12
         ParentBackground = False
         TabOrder = 0
+        ExplicitLeft = 6
+        ExplicitTop = 16
+        ExplicitWidth = 490
+        ExplicitHeight = 657
         object TogglePanel: TPanel
-          Left = 4
-          Top = 653
-          Width = 482
+          Left = 12
+          Top = 670
+          Width = 490
           Height = 0
           Align = alBottom
           BevelOuter = bvNone
@@ -471,12 +426,15 @@ object MainForm: TMainForm
           TabOrder = 0
           Visible = False
           OnClick = TogglePanelClick
+          ExplicitLeft = 4
+          ExplicitTop = 653
+          ExplicitWidth = 482
         end
         object MatchesListView: TListView
-          Left = 4
-          Top = 60
-          Width = 482
-          Height = 593
+          Left = 12
+          Top = 68
+          Width = 490
+          Height = 602
           Align = alClient
           Columns = <
             item
@@ -497,20 +455,26 @@ object MainForm: TMainForm
           TabOrder = 1
           ViewStyle = vsReport
           OnSelectItem = MatchesListViewSelectItem
+          ExplicitLeft = 4
+          ExplicitTop = 60
+          ExplicitWidth = 482
+          ExplicitHeight = 593
         end
         object ResultsHeaderPanel: TPanel
-          Left = 4
-          Top = 4
-          Width = 482
+          Left = 12
+          Top = 12
+          Width = 490
           Height = 56
           Align = alTop
           BevelOuter = bvNone
-          Color = clWhite
           ParentBackground = False
           TabOrder = 2
+          ExplicitLeft = 4
+          ExplicitTop = 4
+          ExplicitWidth = 482
           object ResultsTitleLabel: TLabel
-            Left = 18
-            Top = 12
+            Left = 0
+            Top = 8
             Width = 69
             Height = 20
             Caption = 'Results (0)'
@@ -522,8 +486,8 @@ object MainForm: TMainForm
             ParentFont = False
           end
           object ResultsStatusLabel: TLabel
-            Left = 18
-            Top = 32
+            Left = 0
+            Top = 28
             Width = 32
             Height = 15
             Caption = 'Ready'
@@ -537,5 +501,15 @@ object MainForm: TMainForm
         end
       end
     end
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Top = 742
+    Width = 884
+    Height = 19
+    Panels = <>
+    ExplicitLeft = 384
+    ExplicitTop = 680
+    ExplicitWidth = 0
   end
 end

@@ -21,7 +21,6 @@ uses
   Vcl.StdCtrls,
   Vcl.ExtCtrls,
   Vcl.ComCtrls,
-  Vcl.WinXCtrls,
   Vcl.Samples.Spin,
   Vcl.FileCtrl,
   Grep.Core,
@@ -49,23 +48,16 @@ type
     edtWildcards: TEdit;
     lblContextLines: TLabel;
     spnContextLines: TSpinEdit;
-    lblRegex: TLabel;
-    swRegex: TToggleSwitch;
-    lblCaseSensitive: TLabel;
-    swCaseSensitive: TToggleSwitch;
-    lblReplaceMode: TLabel;
-    swReplaceMode: TToggleSwitch;
+    swRegex: TCheckBox;
+    swCaseSensitive: TCheckBox;
+    swReplaceMode: TCheckBox;
     FiltersCard: TPanel;
-    lblIncludeSubfolders: TLabel;
-    swIncludeSubfolders: TToggleSwitch;
-    lblIncludeHidden: TLabel;
-    swIncludeHidden: TToggleSwitch;
-    lblIncludeBinary: TLabel;
-    lblUseDateFrom: TLabel;
-    swUseDateFrom: TToggleSwitch;
+    swIncludeSubfolders: TCheckBox;
+    swIncludeHidden: TCheckBox;
+    swIncludeBinary: TCheckBox;
+    swUseDateFrom: TCheckBox;
     dtpDateFrom: TDateTimePicker;
-    lblUseDateTo: TLabel;
-    swUseDateTo: TToggleSwitch;
+    swUseDateTo: TCheckBox;
     dtpDateTo: TDateTimePicker;
     lblMinSize: TLabel;
     edtMinSize: TEdit;
@@ -76,7 +68,6 @@ type
     FiltersCardTitle: TLabel;
     SearchCardDivider: TShape;
     FiltersCardDivider: TShape;
-    swIncludeBinary: TToggleSwitch;
     MatchesPanel: TPanel;
     MatchesListView: TListView;
     TogglePanel: TPanel;
@@ -84,6 +75,7 @@ type
     ResultsHeaderPanel: TPanel;
     ResultsTitleLabel: TLabel;
     ResultsStatusLabel: TLabel;
+    StatusBar1: TStatusBar;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnBrowseClick(Sender: TObject);
@@ -257,12 +249,12 @@ begin
   btnSearch.Enabled := False;
   btnClear.Enabled := False;
 
-  if swReplaceMode.State = tssOn then
+  if swReplaceMode.Checked then
     UpdateStatusText('Replacing matches...')
   else
     UpdateStatusText('Searching...');
 
-  if swReplaceMode.State = tssOn then
+  if swReplaceMode.Checked then
     FGrep.Replace(Folder)
   else
     FGrep.Search(Folder);
@@ -284,11 +276,11 @@ end;
 
 procedure TMainForm.UpdateModeState;
 begin
-  edtReplaceText.Enabled := swReplaceMode.State = tssOn;
-  dtpDateFrom.Enabled := swUseDateFrom.State = tssOn;
-  dtpDateTo.Enabled := swUseDateTo.State = tssOn;
+  edtReplaceText.Enabled := swReplaceMode.Checked;
+  dtpDateFrom.Enabled := swUseDateFrom.Checked;
+  dtpDateTo.Enabled := swUseDateTo.Checked;
 
-  if swReplaceMode.State = tssOn then
+  if swReplaceMode.Checked then
     btnSearch.Caption := 'Replace'
   else
     btnSearch.Caption := 'Search';
@@ -308,18 +300,18 @@ procedure TMainForm.ConfigureGrepFromForm;
 var
   SizeValue: Int64;
 begin
-  if swRegex.State = tssOn then
+  if swRegex.Checked then
     FGrep.SearchMode := gsmRegex
   else
     FGrep.SearchMode := gsmText;
 
   FGrep.SearchText := Trim(edtSearchText.Text);
   FGrep.ReplaceText := edtReplaceText.Text;
-  FGrep.CaseSensitive := swCaseSensitive.State = tssOn;
+  FGrep.CaseSensitive := swCaseSensitive.Checked;
   FGrep.Wildcards := Trim(edtWildcards.Text);
-  FGrep.IncludeSubfolders := swIncludeSubfolders.State = tssOn;
-  FGrep.ExcludeHidden := swIncludeHidden.State <> tssOn;
-  FGrep.ExcludeBinary := swIncludeBinary.State <> tssOn;
+  FGrep.IncludeSubfolders := swIncludeSubfolders.Checked;
+  FGrep.ExcludeHidden := not swIncludeHidden.Checked;
+  FGrep.ExcludeBinary := not swIncludeBinary.Checked;
 
   if TryStrToInt64(Trim(edtMinSize.Text), SizeValue) then
     FGrep.MinSize := SizeValue
@@ -331,12 +323,12 @@ begin
   else
     FGrep.MaxSize := High(Int64);
 
-  if swUseDateFrom.State = tssOn then
+  if swUseDateFrom.Checked then
     FGrep.DateFrom := StartOfTheDay(dtpDateFrom.Date)
   else
     FGrep.DateFrom := 0;
 
-  if swUseDateTo.State = tssOn then
+  if swUseDateTo.Checked then
     FGrep.DateTo := EndOfTheDay(dtpDateTo.Date)
   else
     FGrep.DateTo := MaxDateTime;
@@ -395,13 +387,13 @@ begin
     Exit;
   end;
 
-  if (swUseDateFrom.State = tssOn) and (swUseDateTo.State = tssOn) and (dtpDateFrom.Date > dtpDateTo.Date) then
+  if swUseDateFrom.Checked and swUseDateTo.Checked and (dtpDateFrom.Date > dtpDateTo.Date) then
   begin
     MessageDlg('The "from" date cannot be after the "to" date.', mtError, [mbOK], 0);
     Exit;
   end;
 
-  if swRegex.State = tssOn then
+  if swRegex.Checked then
   begin
     try
       TRegEx.Create(edtSearchText.Text);
@@ -699,7 +691,7 @@ begin
   FileCount := TInterlocked.Add(FMatchedFiles, 0);
   ResultCount := FMatches.Count;
 
-  if swReplaceMode.State = tssOn then
+  if swReplaceMode.Checked then
     UpdateStatusText(Format('Replace complete. %d file(s) changed.', [FileCount]))
   else
     UpdateStatusText(Format('Search complete. %d match result(s) across %d file(s).',

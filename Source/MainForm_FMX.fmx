@@ -30,7 +30,7 @@ object MainForm: TMainForm
       TextSettings.Font.Size = 24.000000000000000000
       TextSettings.Font.StyleExt = {00070000000000000004000000}
       TextSettings.FontColor = claWhite
-      Text = 'Quick Grep'
+      Text = 'Grep FMX'
       TabOrder = 0
     end
     object SubtitleLabel: TLabel

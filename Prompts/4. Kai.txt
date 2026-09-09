@@ -1,0 +1,8 @@
+I'd like you to change the GrepVCL projects main form (@@MainForm_VCL.pas) to a more traditional VCL look and feel.
+
+For instance, let's :
+
+1. Change the $00F4F4ED background
+2. Change all TTogleSwitch's for traditional check boxes
+3. The Blue HeaderPanel ( $00975C2C ) is possibly too modern
+

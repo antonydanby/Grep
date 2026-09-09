@@ -1,5 +1,7 @@
 # Grep
 
+This project was created for the **Kai Summer Wave 2026** and demonstrates Delphi's speed when searching through files. It includes several clients, all the client code and all the component code.
+
 Grep is a Delphi-based search and replace tool with three front ends built on the same core engine:
 
 - **GrepCLI** - console application for scripting and batch use
