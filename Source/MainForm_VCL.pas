@@ -227,7 +227,7 @@ begin
   FOpenButton.Width := 60;
   FOpenButton.Height := 25;
   FOpenButton.Left := TogglePanel.ClientWidth - FOpenButton.Width - 8;
-  FOpenButton.Top := 4;
+  FOpenButton.Top := 8;
   FOpenButton.Anchors := [akTop, akRight];
   FOpenButton.OnClick := OpenButtonClick;
   FOpenButton.BringToFront;
