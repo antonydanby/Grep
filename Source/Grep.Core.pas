@@ -294,30 +294,41 @@ procedure TGrep.SearchFolder(const AFolder: string; const ASearchToken: Integer)
 var
   FileName: string;
   SubFolder: string;
+  Wildcard: string;
+  I: Integer;
   Files: TArray<string>;
+  Wildcards: TArray<string>;
   SubFolders: TArray<string>;
 begin
   if IsSearchCancelled(ASearchToken) then
     Exit;
 
-  try
-    Files := TDirectory.GetFiles(AFolder, FWildcards, TSearchOption.soTopDirectoryOnly);
-  except
-    Exit;
-  end;
-
-  for FileName in Files do
+  Wildcards := FWildcards.Split([',']);
+  for I := Low(Wildcards) to High(Wildcards) do
   begin
-    if IsSearchCancelled(ASearchToken) then
-      Exit;
+    Wildcard := Trim(Wildcards[I]);
+    if Wildcard = '' then
+      Continue;
 
-    if FileMatchesFilters(FileName) and FileContainsMatch(FileName, ASearchToken) then
+    try
+      Files := TDirectory.GetFiles(AFolder, Wildcard, TSearchOption.soTopDirectoryOnly);
+    except
+      Continue;
+    end;
+
+    for FileName in Files do
     begin
       if IsSearchCancelled(ASearchToken) then
         Exit;
 
-      if Assigned(FOnFileFound) then
-        FOnFileFound(FileName);
+      if FileMatchesFilters(FileName) and FileContainsMatch(FileName, ASearchToken) then
+      begin
+        if IsSearchCancelled(ASearchToken) then
+          Exit;
+
+        if Assigned(FOnFileFound) then
+          FOnFileFound(FileName);
+      end;
     end;
   end;
 
@@ -345,13 +356,23 @@ end;
 procedure TGrep.Search(const aFolder: string);
 var
   SearchToken: Integer;
+  Folders: TArray<string>;
 begin
   SearchToken := TInterlocked.Increment(FSearchToken);
+  Folders := aFolder.Split([',']);
   TTask.Create(
     procedure
+    var
+      Folder: string;
+      I: Integer;
     begin
       try
-        SearchFolder(aFolder, SearchToken);
+        for I := Low(Folders) to High(Folders) do
+        begin
+          Folder := Trim(Folders[I]);
+          if Folder <> '' then
+            SearchFolder(Folder, SearchToken);
+        end;
       finally
         if not IsSearchCancelled(SearchToken) and Assigned(FOnSearchCompleted) then
           FOnSearchCompleted;
@@ -364,52 +385,42 @@ procedure TGrep.ReplaceFolder(const AFolder: string; const ASearchToken: Integer
 var
   FileName: string;
   SubFolder: string;
+  Wildcard: string;
   SL: TStringList;
   Modified: Boolean;
+  I: Integer;
   Files: TArray<string>;
+  Wildcards: TArray<string>;
   SubFolders: TArray<string>;
 begin
   if IsSearchCancelled(ASearchToken) then
     Exit;
 
-  try
-    Files := TDirectory.GetFiles(AFolder, FWildcards, TSearchOption.soTopDirectoryOnly);
-  except
-    Exit;
-  end;
-
-  for FileName in Files do
+  Wildcards := FWildcards.Split([',']);
+  for I := Low(Wildcards) to High(Wildcards) do
   begin
-    if IsSearchCancelled(ASearchToken) then
-      Exit;
-
-    if not FileMatchesFilters(FileName) then
+    Wildcard := Trim(Wildcards[I]);
+    if Wildcard = '' then
       Continue;
 
-    SL := TStringList.Create;
     try
-      try
-        SL.LoadFromFile(FileName);
-      except
-        Continue;
-      end;
+      Files := TDirectory.GetFiles(AFolder, Wildcard, TSearchOption.soTopDirectoryOnly);
+    except
+      Continue;
+    end;
 
+    for FileName in Files do
+    begin
       if IsSearchCancelled(ASearchToken) then
         Exit;
 
-      Modified := TextMatches(SL.Text);
-      if Modified then
-      begin
-        if FSearchMode = gsmText then
-          SL.Text := SL.Text.Replace(FSearchText, FReplaceText, GetReplaceFlags(FCaseSensitive))
-        else
-          SL.Text := TRegEx.Replace(SL.Text, FSearchText, FReplaceText, GetRegexOptions(FCaseSensitive));
+      if not FileMatchesFilters(FileName) then
+        Continue;
 
-        if IsSearchCancelled(ASearchToken) then
-          Exit;
-
+      SL := TStringList.Create;
+      try
         try
-          SL.SaveToFile(FileName);
+          SL.LoadFromFile(FileName);
         except
           Continue;
         end;
@@ -417,11 +428,32 @@ begin
         if IsSearchCancelled(ASearchToken) then
           Exit;
 
-        if Assigned(FOnFileFound) then
-          FOnFileFound(FileName);
+        Modified := TextMatches(SL.Text);
+        if Modified then
+        begin
+          if FSearchMode = gsmText then
+            SL.Text := SL.Text.Replace(FSearchText, FReplaceText, GetReplaceFlags(FCaseSensitive))
+          else
+            SL.Text := TRegEx.Replace(SL.Text, FSearchText, FReplaceText, GetRegexOptions(FCaseSensitive));
+
+          if IsSearchCancelled(ASearchToken) then
+            Exit;
+
+          try
+            SL.SaveToFile(FileName);
+          except
+            Continue;
+          end;
+
+          if IsSearchCancelled(ASearchToken) then
+            Exit;
+
+          if Assigned(FOnFileFound) then
+            FOnFileFound(FileName);
+        end;
+      finally
+        SL.Free;
       end;
-    finally
-      SL.Free;
     end;
   end;
 
@@ -449,13 +481,23 @@ end;
 procedure TGrep.Replace(const aFolder: string);
 var
   SearchToken: Integer;
+  Folders: TArray<string>;
 begin
   SearchToken := TInterlocked.Increment(FSearchToken);
+  Folders := aFolder.Split([',']);
   TTask.Create(
     procedure
+    var
+      Folder: string;
+      I: Integer;
     begin
       try
-        ReplaceFolder(aFolder, SearchToken);
+        for I := Low(Folders) to High(Folders) do
+        begin
+          Folder := Trim(Folders[I]);
+          if Folder <> '' then
+            ReplaceFolder(Folder, SearchToken);
+        end;
       finally
         if not IsSearchCancelled(SearchToken) and Assigned(FOnSearchCompleted) then
           FOnSearchCompleted;

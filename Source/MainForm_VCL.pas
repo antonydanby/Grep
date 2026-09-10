@@ -5,6 +5,7 @@ interface
 uses
   Winapi.Windows,
   Winapi.Messages,
+  Winapi.ShellAPI,
   System.SysUtils,
   System.UITypes,
   System.Classes,
@@ -103,6 +104,7 @@ type
     FWrappedMatch: TStringList;
     FWrappedBelow: TStringList;
     FTogglePaintBox: TPaintBox;
+    FOpenButton: TButton;
 
     procedure ConfigureGrepFromForm;
     procedure ClearResults;
@@ -123,6 +125,7 @@ type
     procedure ExpandToggleForItem(AItem: TListItem);
     procedure CollapseTogglePanel(const AKeepSelection: Boolean);
     procedure BuildToggleWrappedLines;
+    procedure OpenButtonClick(Sender: TObject);
     procedure TogglePaintBoxPaint(Sender: TObject);
   end;
 
@@ -217,6 +220,17 @@ begin
   FTogglePaintBox.Align := alClient;
   FTogglePaintBox.OnPaint := TogglePaintBoxPaint;
   FTogglePaintBox.OnClick := TogglePanelClick;
+
+  FOpenButton := TButton.Create(Self);
+  FOpenButton.Parent := TogglePanel;
+  FOpenButton.Caption := 'Open';
+  FOpenButton.Width := 60;
+  FOpenButton.Height := 25;
+  FOpenButton.Left := TogglePanel.ClientWidth - FOpenButton.Width - 8;
+  FOpenButton.Top := 4;
+  FOpenButton.Anchors := [akTop, akRight];
+  FOpenButton.OnClick := OpenButtonClick;
+  FOpenButton.BringToFront;
 
   dtpDateFrom.Date := Now - 30;
   dtpDateTo.Date := Now;
@@ -397,15 +411,29 @@ end;
 
 function TMainForm.ValidateInputs(out AFolder: string): Boolean;
 var
+  Folder: string;
+  Folders: TArray<string>;
   MinSize: Int64;
   MaxSize: Int64;
+  I: Integer;
 begin
   Result := False;
   AFolder := Trim(edtFolder.Text);
-  if (AFolder = '') or not TDirectory.Exists(AFolder) then
+  Folders := AFolder.Split([',']);
+  if AFolder = '' then
   begin
-    MessageDlg('Choose a valid root folder before starting the search.', mtError, [mbOK], 0);
+    MessageDlg('Choose at least one valid root folder before starting the search.', mtError, [mbOK], 0);
     Exit;
+  end;
+
+  for I := Low(Folders) to High(Folders) do
+  begin
+    Folder := Trim(Folders[I]);
+    if (Folder = '') or not TDirectory.Exists(Folder) then
+    begin
+      MessageDlg('Choose valid comma-separated root folders before starting the search.', mtError, [mbOK], 0);
+      Exit;
+    end;
   end;
 
   if Trim(edtSearchText.Text) = '' then
@@ -660,6 +688,25 @@ begin
   begin
     FTogglePaintBox.Canvas.TextOut(12, TopPos, FWrappedBelow[I]);
     Inc(TopPos, LineHeight);
+  end;
+end;
+
+procedure TMainForm.OpenButtonClick(Sender: TObject);
+var
+  OpenResult: HINST;
+begin
+  if (FToggleMatch = nil) or not TFile.Exists(FToggleMatch.Filename) then
+  begin
+    MessageDlg('The matched file is no longer available.', mtError, [mbOK], 0);
+    Exit;
+  end;
+
+  OpenResult := ShellExecute(Handle, 'open', PChar(FToggleMatch.Filename), nil, nil, SW_SHOWNORMAL);
+  if OpenResult <= 32 then
+  begin
+    OpenResult := ShellExecute(Handle, 'open', 'notepad.exe', PChar(FToggleMatch.Filename), nil, SW_SHOWNORMAL);
+    if OpenResult <= 32 then
+      MessageDlg('Unable to open the matched file.', mtError, [mbOK], 0);
   end;
 end;
 

@@ -3,6 +3,8 @@ unit MatchesDisplay_FMX;
 interface
 
 uses
+  Winapi.Windows,
+  Winapi.ShellAPI,
   System.SysUtils,
   System.Classes,
   System.Math,
@@ -12,6 +14,7 @@ uses
   System.Generics.Collections,
   FMX.Types,
   FMX.Controls,
+  FMX.DialogService,
   FMX.Graphics,
   FMX.StdCtrls,
   FMX.Objects,
@@ -53,6 +56,7 @@ type
     procedure AddMatch(const AData: TMatchesData);
     procedure AddMatches(const AData: TObjectList<TMatchesData>);
     function Count: Integer;
+    procedure OpenSelectedMatch;
     property Matches: TMatchesList read FMatches;
   end;
 
@@ -254,6 +258,27 @@ end;
 function TMatchesDisplay.Count: Integer;
 begin
   Result := FMatches.Count;
+end;
+
+procedure TMatchesDisplay.OpenSelectedMatch;
+var
+  OpenResult: HINST;
+begin
+  if (FSelectedMatch = nil) or not TFile.Exists(FSelectedMatch.Filename) then
+  begin
+    TDialogService.MessageDialog('The matched file is no longer available.',
+      TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], TMsgDlgBtn.mbOK, 0, nil);
+    Exit;
+  end;
+
+  OpenResult := ShellExecute(0, 'open', PChar(FSelectedMatch.Filename), nil, nil, SW_SHOWNORMAL);
+  if OpenResult <= 32 then
+  begin
+    OpenResult := ShellExecute(0, 'open', 'notepad.exe', PChar(FSelectedMatch.Filename), nil, SW_SHOWNORMAL);
+    if OpenResult <= 32 then
+      TDialogService.MessageDialog('Unable to open the matched file.',
+        TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], TMsgDlgBtn.mbOK, 0, nil);
+  end;
 end;
 
 procedure TMatchesDisplay.ListViewItemClick(const Sender: TObject; const AItem: TListViewItem);

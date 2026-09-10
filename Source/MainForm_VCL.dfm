@@ -97,7 +97,6 @@ object MainForm: TMainForm
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 1
-    ExplicitHeight = 690
     object FiltersPanel: TPanel
       Left = 0
       Top = 0
@@ -107,7 +106,6 @@ object MainForm: TMainForm
       BevelOuter = bvNone
       ParentBackground = False
       TabOrder = 0
-      ExplicitHeight = 690
       object FiltersScrollBox: TScrollBox
         Left = 16
         Top = 16
@@ -120,7 +118,6 @@ object MainForm: TMainForm
         Color = clBtnFace
         ParentColor = False
         TabOrder = 0
-        ExplicitHeight = 661
         object SearchCard: TPanel
           Left = 0
           Top = 0
@@ -271,7 +268,6 @@ object MainForm: TMainForm
           BevelOuter = bvNone
           ParentBackground = False
           TabOrder = 1
-          ExplicitTop = 349
           object FiltersCardTitle: TLabel
             Left = 14
             Top = 12
@@ -394,7 +390,6 @@ object MainForm: TMainForm
           Constraints.MinHeight = 4
           ParentBackground = False
           TabOrder = 2
-          ExplicitHeight = 12
         end
       end
     end
@@ -407,7 +402,6 @@ object MainForm: TMainForm
       BevelOuter = bvNone
       ParentBackground = False
       TabOrder = 1
-      ExplicitHeight = 690
       object MatchesPanel: TPanel
         Left = 0
         Top = 0
@@ -418,7 +412,6 @@ object MainForm: TMainForm
         BorderWidth = 12
         ParentBackground = False
         TabOrder = 0
-        ExplicitHeight = 690
         object TogglePanel: TPanel
           Left = 12
           Top = 697
@@ -431,7 +424,6 @@ object MainForm: TMainForm
           TabOrder = 0
           Visible = False
           OnClick = TogglePanelClick
-          ExplicitTop = 678
         end
         object MatchesListView: TListView
           Left = 12
@@ -458,7 +450,6 @@ object MainForm: TMainForm
           TabOrder = 1
           ViewStyle = vsReport
           OnSelectItem = MatchesListViewSelectItem
-          ExplicitHeight = 610
         end
         object ResultsHeaderPanel: TPanel
           Left = 12

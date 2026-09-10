@@ -48,3 +48,38 @@ While testing I noticed in the GrepVCL and the GrepFMX projects I noticed that i
       - with the highlighted line in centre and 10 lines above and 10 below
 
 
+----------
+
+# Folders and Wildcards
+
+- The changes would start with @Source/Grep.Core.pas
+  - Changes also required for @Source/MainForm_VCL.pas and @Source/MainForm_FMX.pas
+
+
+- In @Source/Grep.Core.pas FWildcards is a string and only accepts a single value
+- In @Source/Grep.Core.pas Search is a method which is being passed a string (aFolder) and only accepts a single value
+
+# Change needed
+I actually want to pass a number of values for each:
+- For wildcards, for example: FWildcards := '*.pas,*.sql ';
+- for Search also: Grep.Search('d:\projects,d:\dbcr');
+
+----------
+
+# Opening a file at the line number
+
+Currently when an match is clicked in the list view in either the GrepFMX or the GrepVCL projects a panel in opened and the line is displayed along with a specified number of lines above and below
+
+Current behaviour for the TogglePanel in @Source/MainForm_VCL.pas and the DetailsPanel in @Source/MainForm_FMX.pas is that when the user clicks on this panel it disappears 
+
+# Changes required
+
+It is frustrating if the user wants to open file at the point this panel is open and he can see context, 
+
+- The application should open the file at the line number to allow the user to take a look at the file in it's entirety. 
+- So can you add an "Open" button to the top right of this panel that will open the file and go to the line number. 
+- When opening, it should use whatever is defined in the OS for that file extension to be opened with and if nothing is defined it should use notepad
+
+Please make these changes
+
+

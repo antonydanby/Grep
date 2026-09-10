@@ -105,6 +105,7 @@ type
     FCurrentLinesAround: Integer;
     FSearching: Boolean;
     FFileIconBitmap: TBitmap;
+    FOpenButton: TButton;
     procedure BuildFileIconBitmap;
     procedure ConfigureGrepFromForm;
     procedure ClearResults;
@@ -125,6 +126,7 @@ type
     procedure BackButtonClick(Sender: TObject);
     procedure StopButtonClick(Sender: TObject);
     procedure ToggleModeChanged(Sender: TObject);
+    procedure OpenButtonClick(Sender: TObject);
     procedure StopSearch;
     procedure UpdateSearchUi(const ASearching: Boolean);
   end;
@@ -157,6 +159,17 @@ begin
   FGrep.OnSearchCompleted := HandleSearchCompleted;
 
   FMatchesDisplay := TMatchesDisplay.Create(Self, MatchesListView, DetailsPanel, DetailsPaintBox, FFileIconBitmap);
+
+  FOpenButton := TButton.Create(Self);
+  FOpenButton.Parent := DetailsPanel;
+  FOpenButton.Text := 'Open';
+  FOpenButton.Width := 60;
+  FOpenButton.Height := 28;
+  FOpenButton.Position.X := DetailsPanel.Width - FOpenButton.Width - 12;
+  FOpenButton.Position.Y := 10;
+  FOpenButton.Anchors := [TAnchorKind.akTop, TAnchorKind.akRight];
+  FOpenButton.OnClick := OpenButtonClick;
+  FOpenButton.BringToFront;
 
   ContextLinesBox.Min := 0;
   ContextLinesBox.Max := 20;
@@ -286,6 +299,11 @@ begin
   StopSearch;
 end;
 
+procedure TMainForm.OpenButtonClick(Sender: TObject);
+begin
+  FMatchesDisplay.OpenSelectedMatch;
+end;
+
 procedure TMainForm.ToggleModeChanged(Sender: TObject);
 begin
   UpdateModeState;
@@ -387,16 +405,31 @@ end;
 
 function TMainForm.ValidateInputs(out AFolder: string): Boolean;
 var
+  Folder: string;
+  Folders: TArray<string>;
   MinSize: Int64;
   MaxSize: Int64;
+  I: Integer;
 begin
   Result := False;
   AFolder := Trim(FolderEdit.Text);
-  if (AFolder = '') or not TDirectory.Exists(AFolder) then
+  Folders := AFolder.Split([',']);
+  if AFolder = '' then
   begin
-    TDialogService.MessageDialog('Choose a valid root folder before starting the search.',
+    TDialogService.MessageDialog('Choose at least one valid root folder before starting the search.',
       TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], TMsgDlgBtn.mbOK, 0, nil);
     Exit;
+  end;
+
+  for I := Low(Folders) to High(Folders) do
+  begin
+    Folder := Trim(Folders[I]);
+    if (Folder = '') or not TDirectory.Exists(Folder) then
+    begin
+      TDialogService.MessageDialog('Choose valid comma-separated root folders before starting the search.',
+        TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], TMsgDlgBtn.mbOK, 0, nil);
+      Exit;
+    end;
   end;
 
   if Trim(SearchTextEdit.Text) = '' then
