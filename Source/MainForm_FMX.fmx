@@ -1,602 +1,418 @@
 object MainForm: TMainForm
   Left = 0
   Top = 0
-  Caption = 'Grep FMX'
-  ClientHeight = 680
-  ClientWidth = 980
+  Caption = 'Grep'
+  ClientHeight = 800
+  ClientWidth = 1113
   Position = ScreenCenter
-  Constraints.MinHeight = 660.000000000000000000
-  Constraints.MinWidth = 960.000000000000000000
+  Constraints.MinHeight = 800.000000000000000000
+  Constraints.MinWidth = 900.000000000000000000
   FormFactor.Width = 320
   FormFactor.Height = 480
-  FormFactor.Devices = [Desktop]
+  FormFactor.Devices = [Desktop, iPhone, iPad]
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   DesignerMasterStyle = 0
   object HeaderBar: TRectangle
     Align = Top
-    Fill.Color = xFF145DA0
-    Size.Width = 980.000000000000000000
-    Size.Height = 78.000000000000000000
+    Size.Width = 1113.000000000000000000
+    Size.Height = 60.000000000000000000
     Size.PlatformDefault = False
     Stroke.Kind = None
     object TitleLabel: TLabel
       StyledSettings = []
       Position.X = 24.000000000000000000
-      Position.Y = 10.000000000000000000
-      Size.Width = 240.000000000000000000
-      Size.Height = 28.000000000000000000
+      Position.Y = 6.000000000000000000
+      Size.Width = 160.000000000000000000
+      Size.Height = 25.000000000000000000
       Size.PlatformDefault = False
-      TextSettings.Font.Size = 24.000000000000000000
-      TextSettings.Font.StyleExt = {00070000000000000004000000}
-      TextSettings.FontColor = claWhite
+      TextSettings.Font.Size = 19.000000000000000000
       Text = 'Grep FMX'
-      TabOrder = 0
     end
     object SubtitleLabel: TLabel
       StyledSettings = []
       Position.X = 24.000000000000000000
-      Position.Y = 40.000000000000000000
-      Size.Width = 520.000000000000000000
-      Size.Height = 24.000000000000000000
+      Position.Y = 36.000000000000000000
+      Size.Width = 500.000000000000000000
+      Size.Height = 15.000000000000000000
       Size.PlatformDefault = False
-      TextSettings.Font.Size = 13.000000000000000000
-      TextSettings.FontColor = claWhite
+      TextSettings.FontColor = claGray
       Text = 
-        'Search with text or regex, preview context, and optionally repla' +
-        'ce matches.'
-      TabOrder = 1
+        'Search with text or regex, preview match context, and optionally' +
+        ' replace.'
     end
     object ActionLayout: TLayout
       Align = Right
-      Position.X = 730.000000000000000000
-      Size.Width = 250.000000000000000000
-      Size.Height = 78.000000000000000000
+      Position.X = 875.000000000000000000
+      Size.Width = 238.000000000000000000
+      Size.Height = 60.000000000000000000
       Size.PlatformDefault = False
-      TabOrder = 2
-      object BackButton: TButton
-        Position.X = 12.000000000000000000
-        Position.Y = 22.000000000000000000
-        Size.Width = 100.000000000000000000
-        Size.Height = 34.000000000000000000
+      object SearchButton: TButton
+        Position.Y = 17.000000000000000000
+        Size.Width = 110.000000000000000000
+        Size.Height = 28.000000000000000000
         Size.PlatformDefault = False
-        TabOrder = 0
-        Text = 'Back'
+        Text = 'Search'
+      end
+      object BackButton: TButton
+        Position.X = 116.000000000000000000
+        Position.Y = 17.000000000000000000
+        Size.Width = 110.000000000000000000
+        Size.Height = 28.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'Clear'
       end
       object StopButton: TButton
-        Position.X = 12.000000000000000000
-        Position.Y = 22.000000000000000000
-        Size.Width = 100.000000000000000000
-        Size.Height = 34.000000000000000000
+        Position.X = 116.000000000000000000
+        Position.Y = 17.000000000000000000
+        Size.Width = 110.000000000000000000
+        Size.Height = 28.000000000000000000
         Size.PlatformDefault = False
-        TabOrder = 1
         Text = 'Stop'
         Visible = False
       end
-      object SearchButton: TButton
-        Position.X = 124.000000000000000000
-        Position.Y = 22.000000000000000000
-        Size.Width = 100.000000000000000000
-        Size.Height = 34.000000000000000000
-        Size.PlatformDefault = False
-        TabOrder = 2
-        Text = 'Search'
-      end
     end
   end
-  object Pages: TTabControl
+  object BodyLayout: TLayout
     Align = Client
-    Size.Width = 980.000000000000000000
-    Size.Height = 602.000000000000000000
+    Size.Width = 1113.000000000000000000
+    Size.Height = 740.000000000000000000
     Size.PlatformDefault = False
-    TabIndex = 0
     TabOrder = 1
-    TabPosition = None
-    Sizes = (
-      980s
-      602s
-      980s
-      602s)
-    object FiltersTab: TTabItem
-      CustomIcon = <
-        item
-        end>
-      IsSelected = True
-      Size.Width = 8.000000000000000000
-      Size.Height = 8.000000000000000000
+    object LeftPane: TLayout
+      Align = Left
+      Size.Width = 370.000000000000000000
+      Size.Height = 740.000000000000000000
       Size.PlatformDefault = False
-      StyleLookup = ''
-      TabOrder = 0
-      Text = 'Filters'
-      ExplicitSize.cx = 50.000000000000000000
-      ExplicitSize.cy = 50.000000000000000000
-      object FilterScrollBox: TVertScrollBox
-        Align = Client
-        Size.Width = 980.000000000000000000
-        Size.Height = 567.000000000000000000
-        Size.PlatformDefault = False
-        TabOrder = 0
-        Viewport.Width = 980.000000000000000000
-        Viewport.Height = 567.000000000000000000
-        object CardsLayout: TLayout
-          Align = Client
-          Anchors = [akLeft, akTop, akRight]
-          Margins.Left = 24.000000000000000000
-          Margins.Top = 24.000000000000000000
-          Margins.Right = 24.000000000000000000
-          Margins.Bottom = 24.000000000000000000
-          Size.Width = 932.000000000000000000
-          Size.Height = 519.000000000000000000
-          Size.PlatformDefault = False
-          TabOrder = 0
-          object SearchCard: TRectangle
-            Align = Left
-            Fill.Color = claWhite
-            Margins.Right = 16.000000000000000000
-            Size.Width = 462.000000000000000000
-            Size.Height = 519.000000000000000000
-            Size.PlatformDefault = False
-            Stroke.Color = xFFD9E4EF
-            XRadius = 14.000000000000000000
-            YRadius = 14.000000000000000000
-            object SearchCardTitle: TLabel
-              StyledSettings = []
-              Position.X = 20.000000000000000000
-              Position.Y = 16.000000000000000000
-              Size.Width = 140.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              TextSettings.Font.Size = 18.000000000000000000
-              TextSettings.Font.StyleExt = {00070000000000000004000000}
-              TextSettings.FontColor = xFF20324D
-              Text = 'Search'
-              TabOrder = 0
-            end
-            object FolderLabel: TLabel
-              Position.X = 20.000000000000000000
-              Position.Y = 64.000000000000000000
-              Size.Width = 120.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Folder'
-              TabOrder = 1
-            end
-            object FolderEdit: TEdit
-              Touch.InteractiveGestures = [LongTap, DoubleTap]
-              TabOrder = 2
-              Position.X = 20.000000000000000000
-              Position.Y = 86.000000000000000000
-              Size.Width = 314.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-              TextPrompt = 'Choose the root folder'
-            end
-            object BrowseButton: TButton
-              Position.X = 340.000000000000000000
-              Position.Y = 86.000000000000000000
-              Size.Width = 80.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 3
-              Text = 'Browse...'
-            end
-            object FindLabel: TLabel
-              Position.X = 20.000000000000000000
-              Position.Y = 136.000000000000000000
-              Size.Width = 120.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Find'
-              TabOrder = 4
-            end
-            object SearchTextEdit: TEdit
-              Touch.InteractiveGestures = [LongTap, DoubleTap]
-              TabOrder = 5
-              Position.X = 20.000000000000000000
-              Position.Y = 158.000000000000000000
-              Size.Width = 400.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-              TextPrompt = 'Text or regex to search for'
-            end
-            object ReplaceLabel: TLabel
-              Position.X = 20.000000000000000000
-              Position.Y = 208.000000000000000000
-              Size.Width = 140.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Replace with'
-              TabOrder = 6
-            end
-            object ReplaceTextEdit: TEdit
-              Touch.InteractiveGestures = [LongTap, DoubleTap]
-              TabOrder = 7
-              Position.X = 20.000000000000000000
-              Position.Y = 230.000000000000000000
-              Size.Width = 400.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-              TextPrompt = 'Optional replacement text'
-            end
-            object WildcardsLabel: TLabel
-              Position.X = 20.000000000000000000
-              Position.Y = 280.000000000000000000
-              Size.Width = 160.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Filename wildcards'
-              TabOrder = 8
-            end
-            object WildcardsEdit: TEdit
-              Touch.InteractiveGestures = [LongTap, DoubleTap]
-              TabOrder = 9
-              Position.X = 20.000000000000000000
-              Position.Y = 302.000000000000000000
-              Size.Width = 220.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-            end
-            object ContextLinesLabel: TLabel
-              Position.X = 272.000000000000000000
-              Position.Y = 280.000000000000000000
-              Size.Width = 120.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Context lines'
-              TabOrder = 10
-            end
-            object ContextLinesBox: TNumberBox
-              Touch.InteractiveGestures = [LongTap, DoubleTap]
-              TabOrder = 11
-              Cursor = crIBeam
-              Position.X = 272.000000000000000000
-              Position.Y = 302.000000000000000000
-              Size.Width = 120.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-            end
-            object RegexLabel: TLabel
-              Position.X = 20.000000000000000000
-              Position.Y = 356.000000000000000000
-              Size.Width = 200.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Use regex'
-              TabOrder = 12
-            end
-            object RegexSwitch: TSwitch
-              IsChecked = False
-              Position.X = 342.000000000000000000
-              Position.Y = 352.000000000000000000
-              Size.Width = 78.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 13
-            end
-            object CaseSensitiveLabel: TLabel
-              Position.X = 20.000000000000000000
-              Position.Y = 392.000000000000000000
-              Size.Width = 200.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Case sensitive'
-              TabOrder = 14
-            end
-            object CaseSensitiveSwitch: TSwitch
-              IsChecked = False
-              Position.X = 342.000000000000000000
-              Position.Y = 388.000000000000000000
-              Size.Width = 78.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 15
-            end
-            object ReplaceModeLabel: TLabel
-              Position.X = 20.000000000000000000
-              Position.Y = 428.000000000000000000
-              Size.Width = 200.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Replace mode'
-              TabOrder = 16
-            end
-            object ReplaceModeSwitch: TSwitch
-              IsChecked = False
-              Position.X = 342.000000000000000000
-              Position.Y = 424.000000000000000000
-              Size.Width = 78.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 17
-            end
-          end
-          object FilterCard: TRectangle
-            Align = Client
-            Fill.Color = claWhite
-            Size.Width = 454.000000000000000000
-            Size.Height = 519.000000000000000000
-            Size.PlatformDefault = False
-            Stroke.Color = xFFD9E4EF
-            XRadius = 14.000000000000000000
-            YRadius = 14.000000000000000000
-            object FilterCardTitle: TLabel
-              StyledSettings = []
-              Position.X = 20.000000000000000000
-              Position.Y = 16.000000000000000000
-              Size.Width = 140.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              TextSettings.Font.Size = 18.000000000000000000
-              TextSettings.Font.StyleExt = {00070000000000000004000000}
-              TextSettings.FontColor = xFF20324D
-              Text = 'Filters'
-              TabOrder = 0
-            end
-            object IncludeSubfoldersLabel: TLabel
-              Position.X = 20.000000000000000000
-              Position.Y = 64.000000000000000000
-              Size.Width = 220.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Include subfolders'
-              TabOrder = 1
-            end
-            object IncludeSubfoldersSwitch: TSwitch
-              IsChecked = False
-              Position.X = 295.000000000000000000
-              Position.Y = 60.000000000000000000
-              Size.Width = 78.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 2
-            end
-            object IncludeHiddenLabel: TLabel
-              Position.X = 20.000000000000000000
-              Position.Y = 100.000000000000000000
-              Size.Width = 220.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Include hidden files'
-              TabOrder = 3
-            end
-            object IncludeHiddenSwitch: TSwitch
-              IsChecked = False
-              Position.X = 295.000000000000000000
-              Position.Y = 96.000000000000000000
-              Size.Width = 78.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 4
-            end
-            object IncludeBinaryLabel: TLabel
-              Position.X = 20.000000000000000000
-              Position.Y = 136.000000000000000000
-              Size.Width = 220.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Include binary files'
-              TabOrder = 5
-            end
-            object IncludeBinarySwitch: TSwitch
-              IsChecked = False
-              Position.X = 295.000000000000000000
-              Position.Y = 132.000000000000000000
-              Size.Width = 78.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 6
-            end
-            object UseDateFromLabel: TLabel
-              Position.X = 20.000000000000000000
-              Position.Y = 188.000000000000000000
-              Size.Width = 220.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Use modified from date'
-              TabOrder = 7
-            end
-            object UseDateFromSwitch: TSwitch
-              IsChecked = False
-              Position.X = 295.000000000000000000
-              Position.Y = 187.000000000000000000
-              Size.Width = 78.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 8
-            end
-            object DateFromEdit: TDateEdit
-              Date = 46272.000000000000000000
-              Position.X = 20.000000000000000000
-              Position.Y = 214.000000000000000000
-              Size.Width = 160.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 9
-            end
-            object UseDateToLabel: TLabel
-              Position.X = 20.000000000000000000
-              Position.Y = 270.000000000000000000
-              Size.Width = 220.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Use modified to date'
-              TabOrder = 10
-            end
-            object UseDateToSwitch: TSwitch
-              IsChecked = False
-              Position.X = 295.000000000000000000
-              Position.Y = 269.000000000000000000
-              Size.Width = 78.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 11
-            end
-            object DateToEdit: TDateEdit
-              Date = 46272.000000000000000000
-              Position.X = 20.000000000000000000
-              Position.Y = 296.000000000000000000
-              Size.Width = 160.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 12
-            end
-            object MinSizeLabel: TLabel
-              Position.X = 20.000000000000000000
-              Position.Y = 352.000000000000000000
-              Size.Width = 180.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Min file size (bytes)'
-              TabOrder = 13
-            end
-            object MinSizeEdit: TEdit
-              Touch.InteractiveGestures = [LongTap, DoubleTap]
-              TabOrder = 14
-              Position.X = 20.000000000000000000
-              Position.Y = 374.000000000000000000
-              Size.Width = 160.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-              TextPrompt = 'Optional minimum size'
-            end
-            object MaxSizeLabel: TLabel
-              Position.X = 213.000000000000000000
-              Position.Y = 352.000000000000000000
-              Size.Width = 180.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Max file size (bytes)'
-              TabOrder = 15
-            end
-            object MaxSizeEdit: TEdit
-              Touch.InteractiveGestures = [LongTap, DoubleTap]
-              TabOrder = 16
-              Position.X = 213.000000000000000000
-              Position.Y = 374.000000000000000000
-              Size.Width = 160.000000000000000000
-              Size.Height = 25.000000000000000000
-              Size.PlatformDefault = False
-              TextPrompt = 'Optional maximum size'
-            end
-          end
-        end
+      object SearchCard: TRectangle
+      Fill.Color = claNull
+      Position.X = 16.000000000000000000
+      Position.Y = 16.000000000000000000
+      Size.Width = 350.000000000000000000
+      Size.Height = 337.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Kind = None
+      object SearchCardTitle: TLabel
+        StyledSettings = [Family, FontColor]
+        Position.X = 14.000000000000000000
+        Position.Y = 12.000000000000000000
+        TextSettings.Font.Size = 14.000000000000000000
+        TextSettings.Font.StyleExt = {00060000000000000004000000}
+        Text = 'Search'
       end
-      object BottomFillerPanel: TPanel
-        Align = Bottom
-        Opacity = 0.000000000000000000
-        Position.Y = 567.000000000000000000
-        Size.Width = 980.000000000000000000
-        Size.Height = 35.000000000000000000
+      object FolderLabel: TLabel
+        Position.X = 14.000000000000000000
+        Position.Y = 56.000000000000000000
+        Text = 'Folder'
+      end
+      object FolderEdit: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        Position.X = 14.000000000000000000
+        Position.Y = 74.000000000000000000
+        Size.Width = 244.000000000000000000
+        Size.Height = 23.000000000000000000
         Size.PlatformDefault = False
-        TabOrder = 1
+      end
+      object BrowseButton: TButton
+        Position.X = 264.000000000000000000
+        Position.Y = 73.000000000000000000
+        Size.Width = 54.000000000000000000
+        Size.Height = 25.000000000000000000
+        Size.PlatformDefault = False
+        Text = '...'
+      end
+      object FindLabel: TLabel
+        Position.X = 14.000000000000000000
+        Position.Y = 105.000000000000000000
+        Text = 'Find'
+      end
+      object SearchTextEdit: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        Position.X = 14.000000000000000000
+        Position.Y = 123.000000000000000000
+        Size.Width = 304.000000000000000000
+        Size.Height = 23.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object ReplaceLabel: TLabel
+        Position.X = 14.000000000000000000
+        Position.Y = 154.000000000000000000
+        Text = 'Replace with'
+      end
+      object ReplaceTextEdit: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        Position.X = 14.000000000000000000
+        Position.Y = 172.000000000000000000
+        Size.Width = 304.000000000000000000
+        Size.Height = 23.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object WildcardsLabel: TLabel
+        Position.X = 14.000000000000000000
+        Position.Y = 203.000000000000000000
+        Text = 'Filename wildcards'
+      end
+      object WildcardsEdit: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        Position.X = 14.000000000000000000
+        Position.Y = 221.000000000000000000
+        Size.Width = 150.000000000000000000
+        Size.Height = 23.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object ContextLinesLabel: TLabel
+        Position.X = 194.000000000000000000
+        Position.Y = 203.000000000000000000
+        Text = 'Context lines'
+      end
+      object ContextLinesBox: TNumberBox
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        Cursor = crIBeam
+        Position.X = 194.000000000000000000
+        Position.Y = 221.000000000000000000
+        Size.Width = 124.000000000000000000
+        Size.Height = 24.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object RegexSwitch: TSwitch
+        IsChecked = False
+        Position.X = 14.000000000000000000
+        Position.Y = 255.000000000000000000
+        Size.Width = 200.000000000000000000
+        Size.Height = 25.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object RegexLabel: TLabel
+        Position.X = 42.000000000000000000
+        Position.Y = 259.000000000000000000
+        Text = 'Use regex'
+      end
+      object CaseSensitiveSwitch: TSwitch
+        IsChecked = False
+        Position.X = 14.000000000000000000
+        Position.Y = 281.000000000000000000
+        Size.Width = 200.000000000000000000
+        Size.Height = 25.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object CaseSensitiveLabel: TLabel
+        Position.X = 42.000000000000000000
+        Position.Y = 284.000000000000000000
+        Text = 'Case sensitive'
+      end
+      object ReplaceModeSwitch: TSwitch
+        IsChecked = False
+        Position.X = 14.000000000000000000
+        Position.Y = 307.000000000000000000
+        Size.Width = 200.000000000000000000
+        Size.Height = 25.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object ReplaceModeLabel: TLabel
+        Position.X = 42.000000000000000000
+        Position.Y = 311.000000000000000000
+        Text = 'Replace mode'
       end
     end
-    object ResultsTab: TTabItem
-      CustomIcon = <
-        item
-        end>
-      IsSelected = False
-      Size.Width = 8.000000000000000000
-      Size.Height = 8.000000000000000000
+    object FilterCard: TRectangle
+      Fill.Color = claNull
+      Position.X = 16.000000000000000000
+      Position.Y = 381.000000000000000000
+      Size.Width = 350.000000000000000000
+      Size.Height = 312.000000000000000000
       Size.PlatformDefault = False
-      StyleLookup = ''
-      TabOrder = 0
-      Text = 'Results'
-      ExplicitSize.cx = 50.000000000000000000
-      ExplicitSize.cy = 50.000000000000000000
-      object ResultsLayout: TLayout
-        Align = Client
-        Margins.Left = 24.000000000000000000
-        Margins.Top = 24.000000000000000000
-        Margins.Right = 24.000000000000000000
-        Margins.Bottom = 24.000000000000000000
-        Size.Width = 932.000000000000000000
-        Size.Height = 554.000000000000000000
+      Stroke.Kind = None
+      object FilterCardTitle: TLabel
+        StyledSettings = [Family, FontColor]
+        Position.X = 14.000000000000000000
+        Position.Y = 12.000000000000000000
+        TextSettings.Font.Size = 14.000000000000000000
+        TextSettings.Font.StyleExt = {00060000000000000004000000}
+        Text = 'Filters'
+      end
+      object IncludeSubfoldersSwitch: TSwitch
+        IsChecked = False
+        Position.X = 14.000000000000000000
+        Position.Y = 53.000000000000000000
+        Size.Width = 200.000000000000000000
+        Size.Height = 25.000000000000000000
         Size.PlatformDefault = False
-        TabOrder = 0
-        object ResultsHeader: TRectangle
-          Align = Top
-          Fill.Color = claWhite
-          Margins.Bottom = 16.000000000000000000
-          Size.Width = 932.000000000000000000
-          Size.Height = 74.000000000000000000
+      end
+      object IncludeSubfoldersLabel: TLabel
+        Position.X = 42.000000000000000000
+        Position.Y = 57.000000000000000000
+        Text = 'Include subfolders'
+      end
+      object IncludeHiddenSwitch: TSwitch
+        IsChecked = False
+        Position.X = 14.000000000000000000
+        Position.Y = 79.000000000000000000
+        Size.Width = 200.000000000000000000
+        Size.Height = 25.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object IncludeHiddenLabel: TLabel
+        Position.X = 42.000000000000000000
+        Position.Y = 83.000000000000000000
+        Text = 'Include hidden files'
+      end
+      object IncludeBinarySwitch: TSwitch
+        IsChecked = False
+        Position.X = 14.000000000000000000
+        Position.Y = 105.000000000000000000
+        Size.Width = 200.000000000000000000
+        Size.Height = 25.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object IncludeBinaryLabel: TLabel
+        Position.X = 42.000000000000000000
+        Position.Y = 109.000000000000000000
+        Text = 'Include binary files'
+      end
+      object UseDateFromSwitch: TSwitch
+        IsChecked = False
+        Position.X = 14.000000000000000000
+        Position.Y = 135.000000000000000000
+        Size.Width = 200.000000000000000000
+        Size.Height = 25.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object UseDateFromLabel: TLabel
+        Position.X = 42.000000000000000000
+        Position.Y = 138.000000000000000000
+        Size.Width = 143.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'Use modified from date'
+      end
+      object DateFromEdit: TDateEdit
+        Date = 46276.000000000000000000
+        Position.X = 14.000000000000000000
+        Position.Y = 164.000000000000000000
+        Size.Width = 304.000000000000000000
+        Size.Height = 23.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object UseDateToSwitch: TSwitch
+        IsChecked = False
+        Position.X = 14.000000000000000000
+        Position.Y = 192.000000000000000000
+        Size.Width = 200.000000000000000000
+        Size.Height = 27.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object UseDateToLabel: TLabel
+        Position.X = 42.000000000000000000
+        Position.Y = 195.000000000000000000
+        Text = 'Use modified to date'
+      end
+      object DateToEdit: TDateEdit
+        Date = 46276.000000000000000000
+        Position.X = 14.000000000000000000
+        Position.Y = 221.000000000000000000
+        Size.Width = 304.000000000000000000
+        Size.Height = 23.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object MinSizeLabel: TLabel
+        Position.X = 14.000000000000000000
+        Position.Y = 256.000000000000000000
+        Text = 'Min file size (bytes)'
+      end
+      object MinSizeEdit: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        Position.X = 14.000000000000000000
+        Position.Y = 274.000000000000000000
+        Size.Width = 144.000000000000000000
+        Size.Height = 23.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object MaxSizeLabel: TLabel
+        Position.X = 174.000000000000000000
+        Position.Y = 256.000000000000000000
+        Text = 'Max file size (bytes)'
+      end
+      object MaxSizeEdit: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        Position.X = 174.000000000000000000
+        Position.Y = 274.000000000000000000
+        Size.Width = 144.000000000000000000
+        Size.Height = 23.000000000000000000
+        Size.PlatformDefault = False
+      end
+      end
+    end
+    object ResultsLayout: TLayout
+      Align = Client
+      Margins.Top = 16.000000000000000000
+      Margins.Right = 16.000000000000000000
+      Margins.Bottom = 16.000000000000000000
+      Size.Width = 727.000000000000000000
+      Size.Height = 708.000000000000000000
+      Size.PlatformDefault = False
+      object ResultsHeader: TRectangle
+        Align = Top
+        Fill.Color = claNull
+        Size.Width = 1561.000000000000000000
+        Size.Height = 60.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+        object ResultsTitleLabel: TLabel
+          StyledSettings = [Family, FontColor]
+          Position.X = 14.000000000000000000
+          Position.Y = 8.000000000000000000
+          TextSettings.Font.Size = 14.000000000000000000
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          Text = 'Results (0)'
+        end
+        object ResultsStatusLabel: TLabel
+          Position.X = 14.000000000000000000
+          Position.Y = 34.000000000000000000
+          Size.Width = 420.000000000000000000
+          Size.Height = 17.000000000000000000
           Size.PlatformDefault = False
-          Stroke.Color = xFFD9E4EF
-          XRadius = 14.000000000000000000
-          YRadius = 14.000000000000000000
-          object ResultsTitleLabel: TLabel
-            StyledSettings = []
-            Position.X = 18.000000000000000000
-            Position.Y = 14.000000000000000000
-            Size.Width = 260.000000000000000000
-            Size.Height = 24.000000000000000000
-            Size.PlatformDefault = False
-            TextSettings.Font.Size = 18.000000000000000000
-            TextSettings.Font.StyleExt = {00070000000000000004000000}
-            TextSettings.FontColor = xFF20324D
-            Text = 'Results (0)'
-            TabOrder = 0
-          end
-          object ResultsStatusLabel: TLabel
-            Position.X = 18.000000000000000000
-            Position.Y = 40.000000000000000000
-            Size.Width = 640.000000000000000000
-            Size.Height = 20.000000000000000000
-            Size.PlatformDefault = False
-            Text = 'Ready'
-            TabOrder = 1
-          end
-          object SearchIndicator: TAniIndicator
-            Position.X = 872.000000000000000000
-            Position.Y = 20.000000000000000000
-            Size.Width = 28.000000000000000000
-            Size.Height = 28.000000000000000000
-            Size.PlatformDefault = False
-            Visible = False
+          Text = 'Ready'
+        end
+        object SearchIndicator: TAniIndicator
+          Position.X = 458.000000000000000000
+          Position.Y = 16.000000000000000000
+          Size.Width = 28.000000000000000000
+          Size.Height = 28.000000000000000000
+          Size.PlatformDefault = False
+          Visible = False
+        end
+      end
+      object ResultsSurface: TRectangle
+        Align = Client
+        Fill.Color = claWhite
+        Margins.Top = 8.000000000000000000
+        Size.Width = 727.000000000000000000
+        Size.Height = 640.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Color = xFFD0D0D0
+        object DetailsPanel: TRectangle
+          Align = Bottom
+          Size.Width = 727.000000000000000000
+          Size.Height = 0.000000000000000000
+          Size.PlatformDefault = False
+          Visible = False
+          object DetailsPaintBox: TPaintBox
+            Align = Client
           end
         end
-        object ResultsSurface: TRectangle
+        object MatchesListView: TListView
+          ItemAppearanceClassName = 'TListItemAppearance'
+          ItemEditAppearanceClassName = 'TListItemShowCheckAppearance'
+          HeaderAppearanceClassName = 'TListHeaderObjects'
+          FooterAppearanceClassName = 'TListHeaderObjects'
           Align = Client
-          Fill.Color = claWhite
-          Size.Width = 932.000000000000000000
-          Size.Height = 464.000000000000000000
+          Margins.Left = 8.000000000000000000
+          Margins.Top = 8.000000000000000000
+          Margins.Right = 8.000000000000000000
+          Margins.Bottom = 8.000000000000000000
+          Size.Width = 711.000000000000000000
+          Size.Height = 624.000000000000000000
           Size.PlatformDefault = False
-          Stroke.Color = xFFD9E4EF
-          XRadius = 14.000000000000000000
-          YRadius = 14.000000000000000000
-          object DetailsPanel: TRectangle
-            Align = Bottom
-            Fill.Color = xFFFDFEFF
-            Margins.Left = 16.000000000000000000
-            Margins.Right = 16.000000000000000000
-            Margins.Bottom = 16.000000000000000000
-            Size.Width = 1100.000000000000000000
-            Size.Height = 0.000000000000000000
-            Size.PlatformDefault = False
-            Stroke.Color = xFFD7E3F0
-            Visible = False
-            object DetailsPaintBox: TPaintBox
-              Align = Client
-              Size.Width = 1100.000000000000000000
-              Size.Height = 0.000000000000000000
-              Size.PlatformDefault = False
-            end
-          end
-          object MatchesListView: TListView
-            ItemAppearanceClassName = 'TImageListItemBottomDetailAppearance'
-            ItemEditAppearanceClassName = 'TListItemShowCheckAppearance'
-            HeaderAppearanceClassName = 'TListHeaderObjects'
-            FooterAppearanceClassName = 'TListHeaderObjects'
-            Align = Client
-            Margins.Left = 8.000000000000000000
-            Margins.Top = 8.000000000000000000
-            Margins.Right = 8.000000000000000000
-            Margins.Bottom = 8.000000000000000000
-            Size.Width = 916.000000000000000000
-            Size.Height = 448.000000000000000000
-            Size.PlatformDefault = False
-            TabOrder = 1
-          end
         end
       end
     end

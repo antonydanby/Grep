@@ -23,7 +23,6 @@ uses
   FMX.Objects,
   FMX.StdCtrls,
   FMX.Edit,
-  FMX.TabControl,
   FMX.DateTimeCtrls,
   FMX.NumberBox,
   FMX.ListView,
@@ -41,11 +40,7 @@ type
     BackButton: TButton;
     StopButton: TButton;
     SearchButton: TButton;
-    Pages: TTabControl;
-    FiltersTab: TTabItem;
-    ResultsTab: TTabItem;
-    FilterScrollBox: TVertScrollBox;
-    CardsLayout: TLayout;
+    BodyLayout: TLayout;
     SearchCard: TRectangle;
     FilterCard: TRectangle;
     FolderLabel: TLabel;
@@ -92,7 +87,6 @@ type
     DetailsPanel: TRectangle;
     DetailsPaintBox: TPaintBox;
     MatchesListView: TListView;
-    BottomFillerPanel: TPanel;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
@@ -118,9 +112,6 @@ type
     procedure HandleFileFound(const AFileName: string);
     procedure HandleRequestedContents(AContents: TObjectList<TMatchedLines>);
     procedure HandleSearchCompleted;
-    procedure ShowFiltersPage;
-    procedure ShowResultsPage;
-    function IsResultsPageActive: Boolean;
     procedure BrowseButtonClick(Sender: TObject);
     procedure SearchButtonClick(Sender: TObject);
     procedure BackButtonClick(Sender: TObject);
@@ -193,7 +184,6 @@ begin
   UpdateModeState;
   UpdateSearchUi(False);
   ClearResults;
-  ShowFiltersPage;
   UpdateStatusText('Configure the search options and start a new Grep.');
 end;
 
@@ -266,8 +256,6 @@ begin
   TInterlocked.Exchange(FSearchFinished, 0);
   FSearching := True;
   UpdateSearchUi(True);
-  ShowResultsPage;
-
   if ReplaceModeSwitch.IsChecked then
     UpdateStatusText('Replacing matches...')
   else
@@ -283,12 +271,6 @@ procedure TMainForm.BackButtonClick(Sender: TObject);
 begin
   if FSearching then
     Exit;
-
-  if IsResultsPageActive then
-  begin
-    ShowFiltersPage;
-    Exit;
-  end;
 
   ClearResults;
   UpdateStatusText('Configure the search options and start a new Grep.');
@@ -621,21 +603,6 @@ begin
   else
     UpdateStatusText(Format('Search complete. %d match result(s) across %d file(s).',
       [ResultCount, FileCount]));
-end;
-
-procedure TMainForm.ShowFiltersPage;
-begin
-  Pages.ActiveTab := FiltersTab;
-end;
-
-procedure TMainForm.ShowResultsPage;
-begin
-  Pages.ActiveTab := ResultsTab;
-end;
-
-function TMainForm.IsResultsPageActive: Boolean;
-begin
-  Result := Pages.ActiveTab = ResultsTab;
 end;
 
 end.

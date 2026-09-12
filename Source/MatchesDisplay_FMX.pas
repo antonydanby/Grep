@@ -324,6 +324,7 @@ begin
 
   FDetailsPanel.Visible := True;
   FDetailsPanel.Height := CalculateDetailHeight(FDetailsPaintBox.Canvas);
+  FDetailsPanel.BringToFront;
   FDetailsPaintBox.Repaint;
 end;
 
