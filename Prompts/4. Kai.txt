@@ -82,4 +82,65 @@ It is frustrating if the user wants to open file at the point this panel is open
 
 Please make these changes
 
+----------
+
+# Changing the look of GrepFMX
+
+- I'd like you to change the GrepFMX projects main form (@Source/MainForm_FMX.pas) to a more traditional Windows look and feel.
+- It needs to match as closely as is possible the look and feel of the GrepVCL projects main form (@Source/MainForm_VCL.pas)
+
+## To be clear
+
+- No tabbed interface, no page control. 
+  - All controls to be on the main form
+- Search section to the Top left
+- Filter section to the Bottom left
+- Results section to the Right
+- Remove the colour for the HeaderPanel ( $00975C2C )
+- Reduce the size of some of the components to make it fit into the same dimensions as found in @Source/MainForm_VCL.pas 
+ 
+----------
+
+# Broken functionality
+
+When changing the look of GrepFMX on the last prompt you have broken the way MatchesListView and the DisplayPanel work
+
+- MatchesListView reaches the far right hand edge and the bottom of the form; it should not do this. 
+- When I click on a match in the MatchesListView list view the DisplayPanel does not appear
+
+Please investigate and fix
+
+
+----------
+
+# Inconsistent DisplayPanel functionality
+
+When a user clicks the MatchesListView the DisplayPanel should appear for the number of lines specified in the context lines value. When the user clicks inside the DisplayPanel the panel should disappear completely. Currently when the user clicks inside the DisplayPanel the panel is minimised to a few lines of context. This is incorrect behaviour.
+
+## NOTE:
+
+- This change is for the GrepFMX project only
+- The GrepVCL project has this functionality working correctly if you wish to compare
+
+Please investigate and fix
+----------
+
+
+# Incorrect file icon
+
+I am searching with filename wildcards set to "*.pas,*.txt,*.sql" and I have noticed that between pas, sql and txt the file icon does not change. 
+
+# What is required
+
+- The file icon should be using the icon that the windows system holds for that file type. So for, example, for .pas it is a centurion helmet because that is the file icon for Delphi source code
+
+## NOTE:
+
+- This change is for the GrepFMX project only
+
+Please investigate and fix
+----------
+
+
+
 

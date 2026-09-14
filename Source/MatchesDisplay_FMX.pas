@@ -12,6 +12,7 @@ uses
   System.UITypes,
   System.IOUtils,
   System.Generics.Collections,
+  Winapi.ShlObj,
   FMX.Types,
   FMX.Controls,
   FMX.DialogService,
@@ -34,7 +35,7 @@ type
     FMatches: TMatchesList;
     FSelectedMatch: TMatchesData;
     FExpanded: Boolean;
-    FFileIcon: TBitmap;
+    FFileIcons: TDictionary<string, TBitmap>;
     FWrappedAbove: TStringList;
     FWrappedMatch: TStringList;
     FWrappedBelow: TStringList;
@@ -45,12 +46,15 @@ type
     procedure HideDetails;
     procedure UpdateDetails;
     procedure BuildWrappedDetails(ACanvas: TCanvas);
+    function GetFileIcon(const AFileName: string): TBitmap;
     function CalculateDetailHeight(ACanvas: TCanvas): Single;
     procedure DrawTextLine(ACanvas: TCanvas; const ARect: TRectF; const AText: string;
       const AColor: TAlphaColor; const ASize: Single; const ABold: Boolean);
   public
     constructor Create(AOwner: TComponent; AListView: TListView; ADetailsPanel: TRectangle;
-      ADetailsPaintBox: TPaintBox; AFileIcon: TBitmap);
+      ADetailsPaintBox: TPaintBox); overload;
+    constructor Create(AOwner: TComponent; AListView: TListView; ADetailsPanel: TRectangle;
+      ADetailsPaintBox: TPaintBox; AUnusedFileIcon: TBitmap); overload;
     destructor Destroy; override;
     procedure ClearBrowser;
     procedure AddMatch(const AData: TMatchesData);
@@ -141,10 +145,80 @@ begin
     AddWrappedParagraph(ACanvas, ADestination, ASourceLines[I], AMaxWidth);
 end;
 
+function CreateBitmapFromIcon(const AIcon: HICON): TBitmap;
+var
+  BitmapInfo: TBitmapInfo;
+  BitmapData: TBitmapData;
+  Bits: Pointer;
+  IconDC: HDC;
+  IconBitmap: HBITMAP;
+  OldBitmap: HGDIOBJ;
+  IconWidth: Integer;
+  IconHeight: Integer;
+  Row: Integer;
+  SourceRow: PByte;
+  DestinationRow: PByte;
+begin
+  Result := nil;
+  IconWidth := GetSystemMetrics(SM_CXSMICON);
+  IconHeight := GetSystemMetrics(SM_CYSMICON);
+  if (AIcon = 0) or (IconWidth <= 0) or (IconHeight <= 0) then
+    Exit;
+
+  ZeroMemory(@BitmapInfo, SizeOf(BitmapInfo));
+  BitmapInfo.bmiHeader.biSize := SizeOf(TBitmapInfoHeader);
+  BitmapInfo.bmiHeader.biWidth := IconWidth;
+  BitmapInfo.bmiHeader.biHeight := IconHeight;
+  BitmapInfo.bmiHeader.biPlanes := 1;
+  BitmapInfo.bmiHeader.biBitCount := 32;
+  BitmapInfo.bmiHeader.biCompression := BI_RGB;
+
+  Bits := nil;
+  IconBitmap := CreateDIBSection(0, BitmapInfo, DIB_RGB_COLORS, Bits, 0, 0);
+  if (IconBitmap = 0) or (Bits = nil) then
+    Exit;
+
+  IconDC := CreateCompatibleDC(0);
+  if IconDC = 0 then
+  begin
+    DeleteObject(IconBitmap);
+    Exit;
+  end;
+
+  OldBitmap := SelectObject(IconDC, IconBitmap);
+  try
+    ZeroMemory(Bits, IconWidth * IconHeight * SizeOf(Cardinal));
+    if not DrawIconEx(IconDC, 0, 0, AIcon, IconWidth, IconHeight, 0, 0, DI_NORMAL) then
+      Exit;
+
+    Result := TBitmap.Create(IconWidth, IconHeight);
+    if not Result.Map(TMapAccess.Write, BitmapData) then
+    begin
+      Result.Free;
+      Result := nil;
+      Exit;
+    end;
+    try
+      for Row := 0 to IconHeight - 1 do
+      begin
+        SourceRow := PByte(NativeInt(Bits) + ((IconHeight - Row - 1) * IconWidth * SizeOf(Cardinal)));
+        DestinationRow := PByte(NativeInt(BitmapData.Data) + (Row * BitmapData.Pitch));
+        Move(SourceRow^, DestinationRow^, IconWidth * SizeOf(Cardinal));
+      end;
+    finally
+      Result.Unmap(BitmapData);
+    end;
+  finally
+    SelectObject(IconDC, OldBitmap);
+    DeleteDC(IconDC);
+    DeleteObject(IconBitmap);
+  end;
+end;
+
 { TMatchesDisplay }
 
 constructor TMatchesDisplay.Create(AOwner: TComponent; AListView: TListView; ADetailsPanel: TRectangle;
-  ADetailsPaintBox: TPaintBox; AFileIcon: TBitmap);
+  ADetailsPaintBox: TPaintBox);
 begin
   inherited Create;
   FMatches := TMatchesList.Create(AOwner);
@@ -153,7 +227,7 @@ begin
   FDetailsPaintBox := ADetailsPaintBox;
   FSelectedMatch := nil;
   FExpanded := False;
-  FFileIcon := AFileIcon;
+  FFileIcons := TDictionary<string, TBitmap>.Create;
   FWrappedAbove := TStringList.Create;
   FWrappedMatch := TStringList.Create;
   FWrappedBelow := TStringList.Create;
@@ -169,13 +243,51 @@ begin
   end;
 end;
 
-destructor TMatchesDisplay.Destroy;
+constructor TMatchesDisplay.Create(AOwner: TComponent; AListView: TListView; ADetailsPanel: TRectangle;
+  ADetailsPaintBox: TPaintBox; AUnusedFileIcon: TBitmap);
 begin
+  Create(AOwner, AListView, ADetailsPanel, ADetailsPaintBox);
+end;
+
+destructor TMatchesDisplay.Destroy;
+var
+  FileIcon: TBitmap;
+begin
+  for FileIcon in FFileIcons.Values do
+    FileIcon.Free;
+  FFileIcons.Free;
   FWrappedBelow.Free;
   FWrappedMatch.Free;
   FWrappedAbove.Free;
   FMatches.Free;
   inherited;
+end;
+
+function TMatchesDisplay.GetFileIcon(const AFileName: string): TBitmap;
+var
+  Extension: string;
+  FileInfo: SHFILEINFO;
+  Icon: HICON;
+begin
+  Result := nil;
+  Extension := LowerCase(ExtractFileExt(AFileName));
+  if FFileIcons.TryGetValue(Extension, Result) then
+    Exit;
+
+  ZeroMemory(@FileInfo, SizeOf(FileInfo));
+  if SHGetFileInfo(PChar(AFileName), 0, FileInfo, SizeOf(FileInfo),
+    SHGFI_ICON or SHGFI_SMALLICON) = 0 then
+    Exit;
+
+  Icon := FileInfo.hIcon;
+  try
+    Result := CreateBitmapFromIcon(Icon);
+  finally
+    DestroyIcon(Icon);
+  end;
+
+  if Result <> nil then
+    FFileIcons.Add(Extension, Result);
 end;
 
 procedure TMatchesDisplay.ConfigureListView;
@@ -230,8 +342,7 @@ begin
   Item.Detail := Format('Line %d - %s', [AData.LineNumber, Preview]);
   Item.Height := 58;
   Item.TagObject := AData;
-  if FFileIcon <> nil then
-    Item.Bitmap := FFileIcon;
+  Item.Bitmap := GetFileIcon(AData.Filename);
 end;
 
 procedure TMatchesDisplay.AddMatches(const AData: TObjectList<TMatchesData>);
@@ -296,11 +407,9 @@ end;
 
 procedure TMatchesDisplay.DetailsClick(Sender: TObject);
 begin
-  if FSelectedMatch = nil then
-    Exit;
-
-  FExpanded := not FExpanded;
-  UpdateDetails;
+  FSelectedMatch := nil;
+  FExpanded := False;
+  HideDetails;
 end;
 
 procedure TMatchesDisplay.HideDetails;

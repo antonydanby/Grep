@@ -16,7 +16,6 @@ uses
   FMX.Types,
   FMX.Controls,
   FMX.Forms,
-  FMX.Graphics,
   FMX.Dialogs,
   FMX.DialogService,
   FMX.Layouts,
@@ -98,9 +97,7 @@ type
     FSearchRequestId: Integer;
     FCurrentLinesAround: Integer;
     FSearching: Boolean;
-    FFileIconBitmap: TBitmap;
     FOpenButton: TButton;
-    procedure BuildFileIconBitmap;
     procedure ConfigureGrepFromForm;
     procedure ClearResults;
     procedure FinalizeSearchIfReady(const ASearchRequestId: Integer);
@@ -141,15 +138,12 @@ begin
   UseDateFromSwitch.OnClick := ToggleModeChanged;
   UseDateToSwitch.OnClick := ToggleModeChanged;
 
-  FFileIconBitmap := TBitmap.Create(22, 28);
-  BuildFileIconBitmap;
-
   FGrep := TGrep.Create;
   FGrep.OnFileFound := HandleFileFound;
   FGrep.OnRequestedContents := HandleRequestedContents;
   FGrep.OnSearchCompleted := HandleSearchCompleted;
 
-  FMatchesDisplay := TMatchesDisplay.Create(Self, MatchesListView, DetailsPanel, DetailsPaintBox, FFileIconBitmap);
+  FMatchesDisplay := TMatchesDisplay.Create(Self, MatchesListView, DetailsPanel, DetailsPaintBox);
 
   FOpenButton := TButton.Create(Self);
   FOpenButton.Parent := DetailsPanel;
@@ -192,40 +186,6 @@ begin
   FGrep.Stop;
   FMatchesDisplay.Free;
   FGrep.Free;
-  FFileIconBitmap.Free;
-end;
-
-procedure TMainForm.BuildFileIconBitmap;
-var
-  R: TRectF;
-begin
-  if (FFileIconBitmap = nil) or not FFileIconBitmap.Canvas.BeginScene then
-    Exit;
-  try
-    FFileIconBitmap.Canvas.Clear(0);
-
-    R := RectF(3, 2, 18, 25);
-    FFileIconBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
-    FFileIconBitmap.Canvas.Fill.Color := $FFFDFEFF;
-    FFileIconBitmap.Canvas.FillRect(R, 2, 2, [], 1);
-
-    FFileIconBitmap.Canvas.Stroke.Kind := TBrushKind.Solid;
-    FFileIconBitmap.Canvas.Stroke.Color := $FF2B6CB0;
-    FFileIconBitmap.Canvas.Stroke.Thickness := 1;
-    FFileIconBitmap.Canvas.DrawRect(R, 2, 2, [], 1);
-
-    FFileIconBitmap.Canvas.Fill.Color := $FFDDEBFA;
-    FFileIconBitmap.Canvas.FillRect(RectF(11, 2, 18, 9), 0, 0, [], 1);
-    FFileIconBitmap.Canvas.DrawLine(PointF(11, 2), PointF(11, 9), 1);
-    FFileIconBitmap.Canvas.DrawLine(PointF(11, 9), PointF(18, 9), 1);
-
-    FFileIconBitmap.Canvas.Stroke.Color := $FF6B93C4;
-    FFileIconBitmap.Canvas.DrawLine(PointF(6, 12), PointF(15, 12), 1);
-    FFileIconBitmap.Canvas.DrawLine(PointF(6, 16), PointF(15, 16), 1);
-    FFileIconBitmap.Canvas.DrawLine(PointF(6, 20), PointF(13, 20), 1);
-  finally
-    FFileIconBitmap.Canvas.EndScene;
-  end;
 end;
 
 procedure TMainForm.BrowseButtonClick(Sender: TObject);
