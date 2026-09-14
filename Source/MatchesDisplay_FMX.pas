@@ -33,9 +33,15 @@ type
     FDetailsPanel: TRectangle;
     FDetailsPaintBox: TPaintBox;
     FMatches: TMatchesList;
+    FFileMatches: TObjectList<TFileMatches>;
+    FSelectedFileMatches: TFileMatches;
     FSelectedMatch: TMatchesData;
+    FSelectedMatchIndex: Integer;
     FExpanded: Boolean;
     FFileIcons: TDictionary<string, TBitmap>;
+    FPreviousMatchButton: TButton;
+    FNextMatchButton: TButton;
+    FMatchPositionLabel: TLabel;
     FWrappedAbove: TStringList;
     FWrappedMatch: TStringList;
     FWrappedBelow: TStringList;
@@ -43,10 +49,15 @@ type
     procedure ListViewItemClick(const Sender: TObject; const AItem: TListViewItem);
     procedure DetailsPaint(Sender: TObject; Canvas: TCanvas);
     procedure DetailsClick(Sender: TObject);
+    procedure PreviousMatchButtonClick(Sender: TObject);
+    procedure NextMatchButtonClick(Sender: TObject);
     procedure HideDetails;
     procedure UpdateDetails;
+    procedure UpdateNavigationControls;
+    procedure SetSelectedMatchIndex(const AIndex: Integer);
     procedure BuildWrappedDetails(ACanvas: TCanvas);
     function GetFileIcon(const AFileName: string): TBitmap;
+    function FindFileMatches(const AFilename: string): TFileMatches;
     function CalculateDetailHeight(ACanvas: TCanvas): Single;
     procedure DrawTextLine(ACanvas: TCanvas; const ARect: TRectF; const AText: string;
       const AColor: TAlphaColor; const ASize: Single; const ABold: Boolean);
@@ -60,6 +71,11 @@ type
     procedure AddMatch(const AData: TMatchesData);
     procedure AddMatches(const AData: TObjectList<TMatchesData>);
     function Count: Integer;
+    function FileCount: Integer;
+    function SelectPreviousMatch: Boolean;
+    function SelectNextMatch: Boolean;
+    function SelectFirstMatch: Boolean;
+    function SelectLastMatch: Boolean;
     procedure OpenSelectedMatch;
     property Matches: TMatchesList read FMatches;
   end;
@@ -222,10 +238,13 @@ constructor TMatchesDisplay.Create(AOwner: TComponent; AListView: TListView; ADe
 begin
   inherited Create;
   FMatches := TMatchesList.Create(AOwner);
+  FFileMatches := TObjectList<TFileMatches>.Create(True);
   FListView := AListView;
   FDetailsPanel := ADetailsPanel;
   FDetailsPaintBox := ADetailsPaintBox;
+  FSelectedFileMatches := nil;
   FSelectedMatch := nil;
+  FSelectedMatchIndex := -1;
   FExpanded := False;
   FFileIcons := TDictionary<string, TBitmap>.Create;
   FWrappedAbove := TStringList.Create;
@@ -239,6 +258,35 @@ begin
     FDetailsPaintBox.OnPaint := DetailsPaint;
     FDetailsPaintBox.OnClick := DetailsClick;
     FDetailsPanel.OnClick := DetailsClick;
+    FMatchPositionLabel := TLabel.Create(AOwner);
+    FMatchPositionLabel.Parent := FDetailsPanel;
+    FMatchPositionLabel.Width := 60;
+    FMatchPositionLabel.Height := 20;
+    FMatchPositionLabel.Position.X := FDetailsPanel.Width - 74;
+    FMatchPositionLabel.Position.Y := 40;
+    FMatchPositionLabel.Anchors := [TAnchorKind.akTop, TAnchorKind.akRight];
+    FMatchPositionLabel.TextSettings.Font.Style := [TFontStyle.fsBold];
+    FMatchPositionLabel.TextSettings.HorzAlign := TTextAlign.Center;
+
+    FPreviousMatchButton := TButton.Create(AOwner);
+    FPreviousMatchButton.Parent := FDetailsPanel;
+    FPreviousMatchButton.Text := 'Up';
+    FPreviousMatchButton.Width := 60;
+    FPreviousMatchButton.Height := 22;
+    FPreviousMatchButton.Position.X := FDetailsPanel.Width - 74;
+    FPreviousMatchButton.Position.Y := 60;
+    FPreviousMatchButton.Anchors := [TAnchorKind.akTop, TAnchorKind.akRight];
+    FPreviousMatchButton.OnClick := PreviousMatchButtonClick;
+
+    FNextMatchButton := TButton.Create(AOwner);
+    FNextMatchButton.Parent := FDetailsPanel;
+    FNextMatchButton.Text := 'Down';
+    FNextMatchButton.Width := 60;
+    FNextMatchButton.Height := 22;
+    FNextMatchButton.Position.X := FDetailsPanel.Width - 74;
+    FNextMatchButton.Position.Y := 84;
+    FNextMatchButton.Anchors := [TAnchorKind.akTop, TAnchorKind.akRight];
+    FNextMatchButton.OnClick := NextMatchButtonClick;
     HideDetails;
   end;
 end;
@@ -256,11 +304,22 @@ begin
   for FileIcon in FFileIcons.Values do
     FileIcon.Free;
   FFileIcons.Free;
+  FFileMatches.Free;
   FWrappedBelow.Free;
   FWrappedMatch.Free;
   FWrappedAbove.Free;
   FMatches.Free;
   inherited;
+end;
+
+function TMatchesDisplay.FindFileMatches(const AFilename: string): TFileMatches;
+var
+  FileMatches: TFileMatches;
+begin
+  Result := nil;
+  for FileMatches in FFileMatches do
+    if SameText(FileMatches.Filename, AFilename) then
+      Exit(FileMatches);
 end;
 
 function TMatchesDisplay.GetFileIcon(const AFileName: string): TBitmap;
@@ -302,7 +361,10 @@ end;
 procedure TMatchesDisplay.ClearBrowser;
 begin
   FMatches.Clear;
+  FFileMatches.Clear;
+  FSelectedFileMatches := nil;
   FSelectedMatch := nil;
+  FSelectedMatchIndex := -1;
   FExpanded := False;
 
   if FListView <> nil then
@@ -322,26 +384,49 @@ procedure TMatchesDisplay.AddMatch(const AData: TMatchesData);
 var
   Item: TListViewItem;
   Preview: string;
+  FirstPreview: string;
+  FileMatches: TFileMatches;
+  I: Integer;
 begin
   if AData = nil then
     Exit;
 
   FMatches.Add(AData);
+  FileMatches := FindFileMatches(AData.Filename);
+  if FileMatches = nil then
+  begin
+    FileMatches := TFileMatches.Create(AData.Filename);
+    FFileMatches.Add(FileMatches);
+  end;
+  FileMatches.Add(AData);
 
   if FListView = nil then
     Exit;
+
+  if FileMatches.Count > 1 then
+  begin
+    for I := 0 to FListView.Items.Count - 1 do
+      if FListView.Items[I].TagObject = FileMatches then
+      begin
+        FirstPreview := NormalizePreviewText(FileMatches[0].MatchValue);
+        if Length(FirstPreview) > 160 then
+          FirstPreview := Copy(FirstPreview, 1, 160) + '...';
+        FListView.Items[I].Detail := Format('%d matches - Line %d - %s',
+          [FileMatches.Count, FileMatches[0].LineNumber, FirstPreview]);
+        Exit;
+      end;
+    Exit;
+  end;
 
   Preview := NormalizePreviewText(AData.MatchValue);
   if Length(Preview) > 160 then
     Preview := Copy(Preview, 1, 160) + '...';
 
   Item := FListView.Items.Add;
-  Item.Text := System.IOUtils.TPath.GetFileName(AData.Filename);
-  if Item.Text = '' then
-    Item.Text := AData.Filename;
-  Item.Detail := Format('Line %d - %s', [AData.LineNumber, Preview]);
+  Item.Text := AData.Filename;
+  Item.Detail := Format('1 match - Line %d - %s', [AData.LineNumber, Preview]);
   Item.Height := 58;
-  Item.TagObject := AData;
+  Item.TagObject := FileMatches;
   Item.Bitmap := GetFileIcon(AData.Filename);
 end;
 
@@ -371,6 +456,41 @@ begin
   Result := FMatches.Count;
 end;
 
+function TMatchesDisplay.FileCount: Integer;
+begin
+  Result := FFileMatches.Count;
+end;
+
+function TMatchesDisplay.SelectPreviousMatch: Boolean;
+begin
+  Result := (FSelectedFileMatches <> nil) and (FSelectedMatchIndex > 0);
+  if Result then
+    SetSelectedMatchIndex(FSelectedMatchIndex - 1);
+end;
+
+function TMatchesDisplay.SelectNextMatch: Boolean;
+begin
+  Result := (FSelectedFileMatches <> nil) and
+    (FSelectedMatchIndex < FSelectedFileMatches.Count - 1);
+  if Result then
+    SetSelectedMatchIndex(FSelectedMatchIndex + 1);
+end;
+
+function TMatchesDisplay.SelectFirstMatch: Boolean;
+begin
+  Result := (FSelectedFileMatches <> nil) and (FSelectedMatchIndex <> 0);
+  if Result then
+    SetSelectedMatchIndex(0);
+end;
+
+function TMatchesDisplay.SelectLastMatch: Boolean;
+begin
+  Result := (FSelectedFileMatches <> nil) and
+    (FSelectedMatchIndex <> FSelectedFileMatches.Count - 1);
+  if Result then
+    SetSelectedMatchIndex(FSelectedFileMatches.Count - 1);
+end;
+
 procedure TMatchesDisplay.OpenSelectedMatch;
 var
   OpenResult: HINST;
@@ -394,22 +514,57 @@ end;
 
 procedure TMatchesDisplay.ListViewItemClick(const Sender: TObject; const AItem: TListViewItem);
 begin
-  if (AItem = nil) or not (AItem.TagObject is TMatchesData) then
+  if (AItem = nil) or not (AItem.TagObject is TFileMatches) then
   begin
     HideDetails;
     Exit;
   end;
 
-  FSelectedMatch := TMatchesData(AItem.TagObject);
+  FSelectedFileMatches := TFileMatches(AItem.TagObject);
+  SetSelectedMatchIndex(0);
   FExpanded := True;
   UpdateDetails;
 end;
 
 procedure TMatchesDisplay.DetailsClick(Sender: TObject);
 begin
+  FSelectedFileMatches := nil;
   FSelectedMatch := nil;
+  FSelectedMatchIndex := -1;
   FExpanded := False;
   HideDetails;
+end;
+
+procedure TMatchesDisplay.PreviousMatchButtonClick(Sender: TObject);
+begin
+  SetSelectedMatchIndex(FSelectedMatchIndex - 1);
+end;
+
+procedure TMatchesDisplay.NextMatchButtonClick(Sender: TObject);
+begin
+  SetSelectedMatchIndex(FSelectedMatchIndex + 1);
+end;
+
+procedure TMatchesDisplay.SetSelectedMatchIndex(const AIndex: Integer);
+begin
+  if (FSelectedFileMatches = nil) or (AIndex < 0) or (AIndex >= FSelectedFileMatches.Count) then
+    Exit;
+
+  FSelectedMatchIndex := AIndex;
+  FSelectedMatch := FSelectedFileMatches[AIndex];
+  UpdateDetails;
+  if FListView <> nil then
+    FListView.SetFocus;
+end;
+
+procedure TMatchesDisplay.UpdateNavigationControls;
+begin
+  if FMatchPositionLabel = nil then
+    Exit;
+
+  FMatchPositionLabel.Text := Format('%d/%d', [FSelectedMatchIndex + 1, FSelectedFileMatches.Count]);
+  FPreviousMatchButton.Enabled := FSelectedMatchIndex > 0;
+  FNextMatchButton.Enabled := FSelectedMatchIndex < FSelectedFileMatches.Count - 1;
 end;
 
 procedure TMatchesDisplay.HideDetails;
@@ -433,6 +588,7 @@ begin
 
   FDetailsPanel.Visible := True;
   FDetailsPanel.Height := CalculateDetailHeight(FDetailsPaintBox.Canvas);
+  UpdateNavigationControls;
   FDetailsPanel.BringToFront;
   FDetailsPaintBox.Repaint;
 end;
@@ -449,7 +605,7 @@ begin
   if FSelectedMatch = nil then
     Exit;
 
-  MaxWidth := Max(180, FDetailsPaintBox.Width - (cDetailsPadding * 2));
+  MaxWidth := Max(180, FDetailsPaintBox.Width - (cDetailsPadding * 2) - 80);
   BuildWrappedLines(ACanvas, FSelectedMatch.LinesAbove, FWrappedAbove, MaxWidth);
   BuildWrappedLines(ACanvas, FSelectedMatch.LinesBelow, FWrappedBelow, MaxWidth);
 
@@ -527,7 +683,7 @@ begin
   TopPos := cDetailsPadding;
 
   TitleText := Format('%s (Line %d)', [FSelectedMatch.Filename, FSelectedMatch.LineNumber]);
-  LineRect := RectF(cDetailsPadding, TopPos, FDetailsPaintBox.Width - cDetailsPadding, TopPos + LineHeight);
+  LineRect := RectF(cDetailsPadding, TopPos, FDetailsPaintBox.Width - cDetailsPadding - 80, TopPos + LineHeight);
   DrawTextLine(Canvas, LineRect, TitleText, $FF20324D, 15, True);
   TopPos := TopPos + LineHeight + 4;
 
@@ -535,13 +691,13 @@ begin
   begin
     for I := 0 to FWrappedAbove.Count - 1 do
     begin
-      LineRect := RectF(cDetailsPadding, TopPos, FDetailsPaintBox.Width - cDetailsPadding, TopPos + LineHeight);
+      LineRect := RectF(cDetailsPadding, TopPos, FDetailsPaintBox.Width - cDetailsPadding - 80, TopPos + LineHeight);
       DrawTextLine(Canvas, LineRect, FWrappedAbove[I], $FF6B7280, 13, False);
       TopPos := TopPos + LineHeight;
     end;
   end;
 
-  HighlightRect := RectF(cDetailsPadding - 4, TopPos - 2, FDetailsPaintBox.Width - cDetailsPadding + 4,
+  HighlightRect := RectF(cDetailsPadding - 4, TopPos - 2, FDetailsPaintBox.Width - cDetailsPadding - 76,
     TopPos + (Max(1, FWrappedMatch.Count) * LineHeight) + 2);
   Canvas.Fill.Kind := TBrushKind.Solid;
   Canvas.Fill.Color := $FFEAF4FF;
@@ -549,7 +705,7 @@ begin
 
   for I := 0 to FWrappedMatch.Count - 1 do
   begin
-    LineRect := RectF(cDetailsPadding, TopPos, FDetailsPaintBox.Width - cDetailsPadding, TopPos + LineHeight);
+    LineRect := RectF(cDetailsPadding, TopPos, FDetailsPaintBox.Width - cDetailsPadding - 80, TopPos + LineHeight);
     DrawTextLine(Canvas, LineRect, FWrappedMatch[I], $FF174B87, 13, True);
     TopPos := TopPos + LineHeight;
   end;
@@ -559,14 +715,14 @@ begin
   begin
     for I := 0 to FWrappedBelow.Count - 1 do
     begin
-      LineRect := RectF(cDetailsPadding, TopPos, FDetailsPaintBox.Width - cDetailsPadding, TopPos + LineHeight);
+      LineRect := RectF(cDetailsPadding, TopPos, FDetailsPaintBox.Width - cDetailsPadding - 80, TopPos + LineHeight);
       DrawTextLine(Canvas, LineRect, FWrappedBelow[I], $FF6B7280, 13, False);
       TopPos := TopPos + LineHeight;
     end;
   end
   else
   begin
-    LineRect := RectF(cDetailsPadding, TopPos, FDetailsPaintBox.Width - cDetailsPadding, TopPos + LineHeight);
+    LineRect := RectF(cDetailsPadding, TopPos, FDetailsPaintBox.Width - cDetailsPadding - 80, TopPos + LineHeight);
     DrawTextLine(Canvas, LineRect, 'Click to show surrounding lines', $FF5F6F82, 12, False);
   end;
 end;

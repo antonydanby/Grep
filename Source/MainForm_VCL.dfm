@@ -13,8 +13,10 @@ object MainForm: TMainForm
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poScreenCenter
+  KeyPreview = True
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnKeyDown = FormKeyDown
   TextHeight = 15
   object HeaderPanel: TPanel
     Left = 0
@@ -437,11 +439,11 @@ object MainForm: TMainForm
               Width = 350
             end
             item
-              Caption = 'Line'
+              Caption = 'Matches'
               Width = 70
             end
             item
-              Caption = 'Match'
+              Caption = 'First match'
               Width = 300
             end>
           ColumnClick = False

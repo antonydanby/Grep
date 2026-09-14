@@ -1,0 +1,57 @@
+# Change to MatchesList population
+
+- Currently if there is 1,000 matches for 200 files, for example, the list will have 1,000 entries
+- This is not optimal and makes it hard to read
+
+## Changes needed
+
+- In the example above the list should show  200 individual files. 
+- If a file had 5 distinct matches then I would expect to see
+
+| File                         | Matches | First match                         |
+|------------------------------|---------|-------------------------------------|
+| c:\example\filename.pas      | 5       | show the first match at this column |
+
+- When a use clicks on the list item to open the DisplayPanel I would expect 2 new buttons and an additional label
+- In the top right hand area of the panel I would expect to see a label (in bold) with 1/5 and a up and down button underneath
+  - when the down button is pressed I would expect to see 2/5 etc.. all the way to 5/5
+  - Naturally, a user cannot click up at 1/5 or down at 5/5
+  - As the user select 1/5, 2/5, 3/5, 4/5 and 5/5 I expect the DisplayPanel to cycle through the 1st, 2nd, 3rd, 4th and 5th match for the file
+
+## NOTE:
+
+- This change is for the GrepFMX and the GrepVCL project 
+
+Please investigate and make this change
+
+----------
+
+# A few minor adjustments to DisplayPanel
+
+1. The button should align under each other neatly at the top right hand side of DisplayPanel
+
+So:
+	|-------|
+	| Open  | 
+	|-------|
+	
+           1/5
+     
+	|-------|
+	| Up    | 
+	|-------|
+	|-------|
+	| Down  | 
+	|-------|	
+
+2. The user should be able to use the windows up and down keys to move by 1
+3. The user should be able to use PgUp to get to the top match and PgDn to get to the bottom match
+
+## NOTE:
+
+- This change is for the GrepFMX and the GrepVCL project 
+
+Please investigate and make this change
+
+
+----------

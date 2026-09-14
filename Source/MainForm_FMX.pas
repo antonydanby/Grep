@@ -88,6 +88,7 @@ type
     MatchesListView: TListView;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: WideChar; Shift: TShiftState);
   private
     FGrep: TGrep;
     FMatchesDisplay: TMatchesDisplay;
@@ -128,6 +129,7 @@ implementation
 
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
+  MatchesListView.OnKeyDown := FormKeyDown;
   SearchButton.OnClick := SearchButtonClick;
   BackButton.OnClick := BackButtonClick;
   StopButton.OnClick := StopButtonClick;
@@ -151,7 +153,7 @@ begin
   FOpenButton.Width := 60;
   FOpenButton.Height := 28;
   FOpenButton.Position.X := DetailsPanel.Width - FOpenButton.Width - 12;
-  FOpenButton.Position.Y := 10;
+  FOpenButton.Position.Y := 8;
   FOpenButton.Anchors := [TAnchorKind.akTop, TAnchorKind.akRight];
   FOpenButton.OnClick := OpenButtonClick;
   FOpenButton.BringToFront;
@@ -179,6 +181,25 @@ begin
   UpdateSearchUi(False);
   ClearResults;
   UpdateStatusText('Configure the search options and start a new Grep.');
+end;
+
+procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: WideChar;
+  Shift: TShiftState);
+begin
+  case Key of
+    vkUp:
+      FMatchesDisplay.SelectPreviousMatch;
+    vkDown:
+      FMatchesDisplay.SelectNextMatch;
+    vkPrior:
+      FMatchesDisplay.SelectFirstMatch;
+    vkNext:
+      FMatchesDisplay.SelectLastMatch;
+  else
+    Exit;
+  end;
+  Key := 0;
+  KeyChar := #0;
 end;
 
 procedure TMainForm.FormDestroy(Sender: TObject);
@@ -265,7 +286,7 @@ end;
 
 procedure TMainForm.UpdateResultSummary;
 begin
-  ResultsTitleLabel.Text := Format('Results (%d)', [FMatchesDisplay.Count]);
+  ResultsTitleLabel.Text := Format('Results (%d files)', [FMatchesDisplay.FileCount]);
 end;
 
 procedure TMainForm.UpdateStatusText(const AText: string);

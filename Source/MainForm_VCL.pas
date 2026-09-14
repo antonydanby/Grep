@@ -88,9 +88,11 @@ type
     procedure MatchesListViewSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
     procedure TogglePanelClick(Sender: TObject);
     procedure TogglePanelPaint(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     FGrep: TGrep;
     FMatches: TMatchesList;
+    FFileMatches: TObjectList<TFileMatches>;
     FPendingMatchRequests: Integer;
     FMatchedFiles: Integer;
     FSearchFinished: Integer;
@@ -99,12 +101,17 @@ type
     FSearching: Boolean;
 
     FToggleMatch: TMatchesData;
+    FToggleFileMatches: TFileMatches;
+    FToggleMatchIndex: Integer;
     FToggleItemIndex: Integer;
     FWrappedAbove: TStringList;
     FWrappedMatch: TStringList;
     FWrappedBelow: TStringList;
     FTogglePaintBox: TPaintBox;
     FOpenButton: TButton;
+    FPreviousMatchButton: TButton;
+    FNextMatchButton: TButton;
+    FMatchPositionLabel: TLabel;
 
     procedure ConfigureGrepFromForm;
     procedure ClearResults;
@@ -121,11 +128,15 @@ type
     procedure HandleSearchCompleted;
 
     procedure AddMatchToListView(const AMatch: TMatchesData);
+    function FindFileMatches(const AFilename: string): TFileMatches;
+    procedure SetToggleMatchIndex(const AIndex: Integer);
     function CalculateToggleHeight(const AMatch: TMatchesData): Integer;
     procedure ExpandToggleForItem(AItem: TListItem);
     procedure CollapseTogglePanel(const AKeepSelection: Boolean);
     procedure BuildToggleWrappedLines;
     procedure OpenButtonClick(Sender: TObject);
+    procedure PreviousMatchButtonClick(Sender: TObject);
+    procedure NextMatchButtonClick(Sender: TObject);
     procedure TogglePaintBoxPaint(Sender: TObject);
   end;
 
@@ -210,7 +221,10 @@ begin
   FGrep.OnSearchCompleted := HandleSearchCompleted;
 
   FMatches := TMatchesList.Create(Self);
+  FFileMatches := TObjectList<TFileMatches>.Create(True);
   FToggleMatch := nil;
+  FToggleFileMatches := nil;
+  FToggleMatchIndex := -1;
   FToggleItemIndex := -1;
   FWrappedAbove := TStringList.Create;
   FWrappedMatch := TStringList.Create;
@@ -226,11 +240,41 @@ begin
   FOpenButton.Caption := 'Open';
   FOpenButton.Width := 60;
   FOpenButton.Height := 25;
-  FOpenButton.Left := TogglePanel.ClientWidth - FOpenButton.Width - 8;
+  FOpenButton.Left := TogglePanel.ClientWidth - 68;
   FOpenButton.Top := 8;
   FOpenButton.Anchors := [akTop, akRight];
   FOpenButton.OnClick := OpenButtonClick;
   FOpenButton.BringToFront;
+
+  FMatchPositionLabel := TLabel.Create(Self);
+  FMatchPositionLabel.Parent := TogglePanel;
+  FMatchPositionLabel.Width := 60;
+  FMatchPositionLabel.Height := 17;
+  FMatchPositionLabel.Left := TogglePanel.ClientWidth - 68;
+  FMatchPositionLabel.Top := 38;
+  FMatchPositionLabel.Alignment := taCenter;
+  FMatchPositionLabel.Font.Style := [fsBold];
+  FMatchPositionLabel.Anchors := [akTop, akRight];
+
+  FPreviousMatchButton := TButton.Create(Self);
+  FPreviousMatchButton.Parent := TogglePanel;
+  FPreviousMatchButton.Caption := 'Up';
+  FPreviousMatchButton.Width := 60;
+  FPreviousMatchButton.Height := 22;
+  FPreviousMatchButton.Left := TogglePanel.ClientWidth - 68;
+  FPreviousMatchButton.Top := 58;
+  FPreviousMatchButton.Anchors := [akTop, akRight];
+  FPreviousMatchButton.OnClick := PreviousMatchButtonClick;
+
+  FNextMatchButton := TButton.Create(Self);
+  FNextMatchButton.Parent := TogglePanel;
+  FNextMatchButton.Caption := 'Down';
+  FNextMatchButton.Width := 60;
+  FNextMatchButton.Height := 22;
+  FNextMatchButton.Left := TogglePanel.ClientWidth - 68;
+  FNextMatchButton.Top := 82;
+  FNextMatchButton.Anchors := [akTop, akRight];
+  FNextMatchButton.OnClick := NextMatchButtonClick;
 
   dtpDateFrom.Date := Now - 30;
   dtpDateTo.Date := Now;
@@ -246,8 +290,27 @@ begin
   FWrappedBelow.Free;
   FWrappedMatch.Free;
   FWrappedAbove.Free;
+  FFileMatches.Free;
   FMatches.Free;
   FGrep.Free;
+end;
+
+procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_UP:
+      SetToggleMatchIndex(FToggleMatchIndex - 1);
+    VK_DOWN:
+      SetToggleMatchIndex(FToggleMatchIndex + 1);
+    VK_PRIOR:
+      SetToggleMatchIndex(0);
+    VK_NEXT:
+      if FToggleFileMatches <> nil then
+        SetToggleMatchIndex(FToggleFileMatches.Count - 1);
+  else
+    Exit;
+  end;
+  Key := 0;
 end;
 
 procedure TMainForm.btnBrowseClick(Sender: TObject);
@@ -323,7 +386,7 @@ end;
 
 procedure TMainForm.UpdateResultSummary;
 begin
-  ResultsTitleLabel.Caption := Format('Results (%d)', [FMatches.Count]);
+  ResultsTitleLabel.Caption := Format('Results (%d files)', [FFileMatches.Count]);
 end;
 
 procedure TMainForm.UpdateStatusText(const AText: string);
@@ -372,6 +435,7 @@ end;
 procedure TMainForm.ClearResults;
 begin
   FMatches.Clear;
+  FFileMatches.Clear;
   MatchesListView.Items.BeginUpdate;
   try
     MatchesListView.Items.Clear;
@@ -534,12 +598,39 @@ end;
 procedure TMainForm.AddMatchToListView(const AMatch: TMatchesData);
 var
   Item: TListItem;
+  FileMatches: TFileMatches;
+  I: Integer;
 begin
+  FileMatches := FindFileMatches(AMatch.Filename);
+  if FileMatches = nil then
+  begin
+    FileMatches := TFileMatches.Create(AMatch.Filename);
+    FFileMatches.Add(FileMatches);
+  end;
+  FileMatches.Add(AMatch);
+
+  for I := 0 to MatchesListView.Items.Count - 1 do
+    if MatchesListView.Items[I].Data = FileMatches then
+    begin
+      MatchesListView.Items[I].SubItems[0] := IntToStr(FileMatches.Count);
+      Exit;
+    end;
+
   Item := MatchesListView.Items.Add;
-  Item.Caption := AMatch.Filename;
-  Item.SubItems.Add(IntToStr(AMatch.LineNumber));
+  Item.Caption := FileMatches.Filename;
+  Item.SubItems.Add(IntToStr(FileMatches.Count));
   Item.SubItems.Add(AMatch.MatchValue);
-  Item.Data := AMatch;
+  Item.Data := FileMatches;
+end;
+
+function TMainForm.FindFileMatches(const AFilename: string): TFileMatches;
+var
+  FileMatches: TFileMatches;
+begin
+  Result := nil;
+  for FileMatches in FFileMatches do
+    if SameText(FileMatches.Filename, AFilename) then
+      Exit(FileMatches);
 end;
 
 function TMainForm.CalculateToggleHeight(const AMatch: TMatchesData): Integer;
@@ -567,7 +658,7 @@ begin
   Inc(TotalHeight, 16);
 
   MaxAvailableHeight := Max(120, MatchesPanel.ClientHeight - ResultsHeaderPanel.Height - 24);
-  Result := EnsureRange(TotalHeight, 90, MaxAvailableHeight);
+  Result := EnsureRange(TotalHeight, 112, MaxAvailableHeight);
 end;
 
 procedure TMainForm.ExpandToggleForItem(AItem: TListItem);
@@ -578,18 +669,34 @@ begin
     Exit;
   end;
 
-  FToggleMatch := TMatchesData(AItem.Data);
+  FToggleFileMatches := TFileMatches(AItem.Data);
   FToggleItemIndex := AItem.Index;
-  TogglePanel.Height := CalculateToggleHeight(FToggleMatch);
+  SetToggleMatchIndex(0);
   TogglePanel.Visible := True;
-  FTogglePaintBox.Invalidate;
   AItem.MakeVisible(False);
+end;
+
+procedure TMainForm.SetToggleMatchIndex(const AIndex: Integer);
+begin
+  if (FToggleFileMatches = nil) or (AIndex < 0) or (AIndex >= FToggleFileMatches.Count) then
+    Exit;
+
+  FToggleMatchIndex := AIndex;
+  FToggleMatch := FToggleFileMatches[AIndex];
+  TogglePanel.Height := CalculateToggleHeight(FToggleMatch);
+  FMatchPositionLabel.Caption := Format('%d/%d', [AIndex + 1, FToggleFileMatches.Count]);
+  FPreviousMatchButton.Enabled := AIndex > 0;
+  FNextMatchButton.Enabled := AIndex < FToggleFileMatches.Count - 1;
+  FTogglePaintBox.Invalidate;
 end;
 
 procedure TMainForm.CollapseTogglePanel(const AKeepSelection: Boolean);
 begin
   TogglePanel.Height := 0;
   TogglePanel.Visible := False;
+  FToggleFileMatches := nil;
+  FToggleMatch := nil;
+  FToggleMatchIndex := -1;
 
   if AKeepSelection and (FToggleItemIndex >= 0) and (FToggleItemIndex < MatchesListView.Items.Count) then
   begin
@@ -600,6 +707,16 @@ begin
   end;
 end;
 
+procedure TMainForm.PreviousMatchButtonClick(Sender: TObject);
+begin
+  SetToggleMatchIndex(FToggleMatchIndex - 1);
+end;
+
+procedure TMainForm.NextMatchButtonClick(Sender: TObject);
+begin
+  SetToggleMatchIndex(FToggleMatchIndex + 1);
+end;
+
 procedure TMainForm.BuildToggleWrappedLines;
 var
   MaxWidth: Integer;
@@ -608,7 +725,7 @@ begin
   if FToggleMatch = nil then
     Exit;
 
-  MaxWidth := Max(120, MatchesListView.ClientWidth - 24);
+  MaxWidth := Max(120, MatchesListView.ClientWidth - 104);
   FTogglePaintBox.Canvas.Font.Name := 'Consolas';
   FTogglePaintBox.Canvas.Font.Size := 9;
   FTogglePaintBox.Canvas.Font.Style := [];

@@ -21,6 +21,21 @@ type
     destructor Destroy; override;
   end;
 
+  TFileMatches = class
+  private
+    FFilename: string;
+    FMatches: TList<TMatchesData>;
+    function GetCount: Integer;
+    function GetMatch(const AIndex: Integer): TMatchesData;
+  public
+    constructor Create(const AFilename: string);
+    destructor Destroy; override;
+    procedure Add(const AMatch: TMatchesData);
+    property Filename: string read FFilename;
+    property Count: Integer read GetCount;
+    property Matches[const AIndex: Integer]: TMatchesData read GetMatch; default;
+  end;
+
   TMatchesList = class
   private
     fList: TObjectList<TMatchesData>;
@@ -61,6 +76,38 @@ type
 implementation
 
 { TMatchesList }
+
+constructor TFileMatches.Create(const AFilename: string);
+begin
+  inherited Create;
+  FFilename := AFilename;
+  FMatches := TList<TMatchesData>.Create;
+end;
+
+destructor TFileMatches.Destroy;
+begin
+  FMatches.Free;
+  inherited;
+end;
+
+procedure TFileMatches.Add(const AMatch: TMatchesData);
+begin
+  if AMatch <> nil then
+    FMatches.Add(AMatch);
+end;
+
+function TFileMatches.GetCount: Integer;
+begin
+  Result := FMatches.Count;
+end;
+
+function TFileMatches.GetMatch(const AIndex: Integer): TMatchesData;
+begin
+  if (AIndex >= 0) and (AIndex < FMatches.Count) then
+    Result := FMatches[AIndex]
+  else
+    Result := nil;
+end;
 
 constructor TMatchesData.Create;
 begin
