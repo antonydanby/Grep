@@ -3,7 +3,7 @@ object MainForm: TMainForm
   Top = 0
   Caption = 'Grep'
   ClientHeight = 800
-  ClientWidth = 1113
+  ClientWidth = 945
   Position = ScreenCenter
   Constraints.MinHeight = 800.000000000000000000
   Constraints.MinWidth = 900.000000000000000000
@@ -15,7 +15,8 @@ object MainForm: TMainForm
   DesignerMasterStyle = 0
   object HeaderBar: TRectangle
     Align = Top
-    Size.Width = 1113.000000000000000000
+    Fill.Color = claLightgray
+    Size.Width = 945.000000000000000000
     Size.Height = 60.000000000000000000
     Size.PlatformDefault = False
     Stroke.Kind = None
@@ -43,7 +44,7 @@ object MainForm: TMainForm
     end
     object ActionLayout: TLayout
       Align = Right
-      Position.X = 875.000000000000000000
+      Position.X = 707.000000000000000000
       Size.Width = 238.000000000000000000
       Size.Height = 60.000000000000000000
       Size.PlatformDefault = False
@@ -75,7 +76,7 @@ object MainForm: TMainForm
   end
   object BodyLayout: TLayout
     Align = Client
-    Size.Width = 1113.000000000000000000
+    Size.Width = 945.000000000000000000
     Size.Height = 740.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 1
@@ -347,13 +348,13 @@ object MainForm: TMainForm
       Margins.Top = 16.000000000000000000
       Margins.Right = 16.000000000000000000
       Margins.Bottom = 16.000000000000000000
-      Size.Width = 727.000000000000000000
+      Size.Width = 559.000000000000000000
       Size.Height = 708.000000000000000000
       Size.PlatformDefault = False
       object ResultsHeader: TRectangle
         Align = Top
         Fill.Color = claNull
-        Size.Width = 727.000000000000000000
+        Size.Width = 559.000000000000000000
         Size.Height = 60.000000000000000000
         Size.PlatformDefault = False
         Stroke.Kind = None
@@ -374,10 +375,11 @@ object MainForm: TMainForm
           Text = 'Ready'
         end
         object SearchIndicator: TAniIndicator
-          Position.X = 458.000000000000000000
-          Position.Y = 16.000000000000000000
-          Size.Width = 28.000000000000000000
-          Size.Height = 28.000000000000000000
+          Anchors = [akTop, akRight]
+          Position.X = 503.000000000000000000
+          Position.Y = 12.000000000000000000
+          Size.Width = 40.000000000000000000
+          Size.Height = 40.000000000000000000
           Size.PlatformDefault = False
           Visible = False
         end
@@ -386,7 +388,7 @@ object MainForm: TMainForm
         Align = Client
         Fill.Color = claWhite
         Margins.Top = 8.000000000000000000
-        Size.Width = 727.000000000000000000
+        Size.Width = 559.000000000000000000
         Size.Height = 640.000000000000000000
         Size.PlatformDefault = False
         Stroke.Color = xFFD0D0D0
@@ -411,7 +413,7 @@ object MainForm: TMainForm
           Margins.Top = 8.000000000000000000
           Margins.Right = 8.000000000000000000
           Margins.Bottom = 8.000000000000000000
-          Size.Width = 711.000000000000000000
+          Size.Width = 543.000000000000000000
           Size.Height = 624.000000000000000000
           Size.PlatformDefault = False
         end
