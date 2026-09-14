@@ -142,5 +142,22 @@ Please investigate and fix
 ----------
 
 
+# Incorrect file icon
+
+I am searching with filename wildcards set to "*.pas,*.txt,*.sql" and I have noticed that the icon now correctly uses the shell icon for that file extension. However there is an issue
+
+# What is required
+
+- The icon when displayed on the list view looks blurry. I suspect this might be down to the size you are using. 
+- If you need to use a smaller icon size to get a clearer icon it is preferable over a large blurry icon
+
+## NOTE:
+
+- This change is for the GrepFMX project only
+
+Please investigate and fix
+----------
+
+
 
 

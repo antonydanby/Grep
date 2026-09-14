@@ -85,261 +85,261 @@ object MainForm: TMainForm
       Size.Height = 740.000000000000000000
       Size.PlatformDefault = False
       object SearchCard: TRectangle
-      Fill.Color = claNull
-      Position.X = 16.000000000000000000
-      Position.Y = 16.000000000000000000
-      Size.Width = 350.000000000000000000
-      Size.Height = 337.000000000000000000
-      Size.PlatformDefault = False
-      Stroke.Kind = None
-      object SearchCardTitle: TLabel
-        StyledSettings = [Family, FontColor]
-        Position.X = 14.000000000000000000
-        Position.Y = 12.000000000000000000
-        TextSettings.Font.Size = 14.000000000000000000
-        TextSettings.Font.StyleExt = {00060000000000000004000000}
-        Text = 'Search'
-      end
-      object FolderLabel: TLabel
-        Position.X = 14.000000000000000000
-        Position.Y = 56.000000000000000000
-        Text = 'Folder'
-      end
-      object FolderEdit: TEdit
-        Touch.InteractiveGestures = [LongTap, DoubleTap]
-        Position.X = 14.000000000000000000
-        Position.Y = 74.000000000000000000
-        Size.Width = 244.000000000000000000
-        Size.Height = 23.000000000000000000
+        Fill.Color = claNull
+        Position.X = 16.000000000000000000
+        Position.Y = 16.000000000000000000
+        Size.Width = 350.000000000000000000
+        Size.Height = 337.000000000000000000
         Size.PlatformDefault = False
+        Stroke.Kind = None
+        object SearchCardTitle: TLabel
+          StyledSettings = [Family, FontColor]
+          Position.X = 14.000000000000000000
+          Position.Y = 12.000000000000000000
+          TextSettings.Font.Size = 14.000000000000000000
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          Text = 'Search'
+        end
+        object FolderLabel: TLabel
+          Position.X = 14.000000000000000000
+          Position.Y = 56.000000000000000000
+          Text = 'Folder'
+        end
+        object FolderEdit: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Position.X = 14.000000000000000000
+          Position.Y = 74.000000000000000000
+          Size.Width = 244.000000000000000000
+          Size.Height = 23.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object BrowseButton: TButton
+          Position.X = 264.000000000000000000
+          Position.Y = 73.000000000000000000
+          Size.Width = 54.000000000000000000
+          Size.Height = 25.000000000000000000
+          Size.PlatformDefault = False
+          Text = '...'
+        end
+        object FindLabel: TLabel
+          Position.X = 14.000000000000000000
+          Position.Y = 105.000000000000000000
+          Text = 'Find'
+        end
+        object SearchTextEdit: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Position.X = 14.000000000000000000
+          Position.Y = 123.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 23.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object ReplaceLabel: TLabel
+          Position.X = 14.000000000000000000
+          Position.Y = 154.000000000000000000
+          Text = 'Replace with'
+        end
+        object ReplaceTextEdit: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Position.X = 14.000000000000000000
+          Position.Y = 172.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 23.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object WildcardsLabel: TLabel
+          Position.X = 14.000000000000000000
+          Position.Y = 203.000000000000000000
+          Text = 'Filename wildcards'
+        end
+        object WildcardsEdit: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Position.X = 14.000000000000000000
+          Position.Y = 221.000000000000000000
+          Size.Width = 150.000000000000000000
+          Size.Height = 23.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object ContextLinesLabel: TLabel
+          Position.X = 194.000000000000000000
+          Position.Y = 203.000000000000000000
+          Text = 'Context lines'
+        end
+        object ContextLinesBox: TNumberBox
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Cursor = crIBeam
+          Position.X = 194.000000000000000000
+          Position.Y = 221.000000000000000000
+          Size.Width = 124.000000000000000000
+          Size.Height = 24.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object RegexSwitch: TSwitch
+          IsChecked = False
+          Position.X = 14.000000000000000000
+          Position.Y = 255.000000000000000000
+          Size.Width = 200.000000000000000000
+          Size.Height = 25.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object RegexLabel: TLabel
+          Position.X = 42.000000000000000000
+          Position.Y = 259.000000000000000000
+          Text = 'Use regex'
+        end
+        object CaseSensitiveSwitch: TSwitch
+          IsChecked = False
+          Position.X = 14.000000000000000000
+          Position.Y = 281.000000000000000000
+          Size.Width = 200.000000000000000000
+          Size.Height = 25.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object CaseSensitiveLabel: TLabel
+          Position.X = 42.000000000000000000
+          Position.Y = 284.000000000000000000
+          Text = 'Case sensitive'
+        end
+        object ReplaceModeSwitch: TSwitch
+          IsChecked = False
+          Position.X = 14.000000000000000000
+          Position.Y = 307.000000000000000000
+          Size.Width = 200.000000000000000000
+          Size.Height = 25.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object ReplaceModeLabel: TLabel
+          Position.X = 42.000000000000000000
+          Position.Y = 311.000000000000000000
+          Text = 'Replace mode'
+        end
       end
-      object BrowseButton: TButton
-        Position.X = 264.000000000000000000
-        Position.Y = 73.000000000000000000
-        Size.Width = 54.000000000000000000
-        Size.Height = 25.000000000000000000
+      object FilterCard: TRectangle
+        Fill.Color = claNull
+        Position.X = 16.000000000000000000
+        Position.Y = 381.000000000000000000
+        Size.Width = 350.000000000000000000
+        Size.Height = 312.000000000000000000
         Size.PlatformDefault = False
-        Text = '...'
-      end
-      object FindLabel: TLabel
-        Position.X = 14.000000000000000000
-        Position.Y = 105.000000000000000000
-        Text = 'Find'
-      end
-      object SearchTextEdit: TEdit
-        Touch.InteractiveGestures = [LongTap, DoubleTap]
-        Position.X = 14.000000000000000000
-        Position.Y = 123.000000000000000000
-        Size.Width = 304.000000000000000000
-        Size.Height = 23.000000000000000000
-        Size.PlatformDefault = False
-      end
-      object ReplaceLabel: TLabel
-        Position.X = 14.000000000000000000
-        Position.Y = 154.000000000000000000
-        Text = 'Replace with'
-      end
-      object ReplaceTextEdit: TEdit
-        Touch.InteractiveGestures = [LongTap, DoubleTap]
-        Position.X = 14.000000000000000000
-        Position.Y = 172.000000000000000000
-        Size.Width = 304.000000000000000000
-        Size.Height = 23.000000000000000000
-        Size.PlatformDefault = False
-      end
-      object WildcardsLabel: TLabel
-        Position.X = 14.000000000000000000
-        Position.Y = 203.000000000000000000
-        Text = 'Filename wildcards'
-      end
-      object WildcardsEdit: TEdit
-        Touch.InteractiveGestures = [LongTap, DoubleTap]
-        Position.X = 14.000000000000000000
-        Position.Y = 221.000000000000000000
-        Size.Width = 150.000000000000000000
-        Size.Height = 23.000000000000000000
-        Size.PlatformDefault = False
-      end
-      object ContextLinesLabel: TLabel
-        Position.X = 194.000000000000000000
-        Position.Y = 203.000000000000000000
-        Text = 'Context lines'
-      end
-      object ContextLinesBox: TNumberBox
-        Touch.InteractiveGestures = [LongTap, DoubleTap]
-        Cursor = crIBeam
-        Position.X = 194.000000000000000000
-        Position.Y = 221.000000000000000000
-        Size.Width = 124.000000000000000000
-        Size.Height = 24.000000000000000000
-        Size.PlatformDefault = False
-      end
-      object RegexSwitch: TSwitch
-        IsChecked = False
-        Position.X = 14.000000000000000000
-        Position.Y = 255.000000000000000000
-        Size.Width = 200.000000000000000000
-        Size.Height = 25.000000000000000000
-        Size.PlatformDefault = False
-      end
-      object RegexLabel: TLabel
-        Position.X = 42.000000000000000000
-        Position.Y = 259.000000000000000000
-        Text = 'Use regex'
-      end
-      object CaseSensitiveSwitch: TSwitch
-        IsChecked = False
-        Position.X = 14.000000000000000000
-        Position.Y = 281.000000000000000000
-        Size.Width = 200.000000000000000000
-        Size.Height = 25.000000000000000000
-        Size.PlatformDefault = False
-      end
-      object CaseSensitiveLabel: TLabel
-        Position.X = 42.000000000000000000
-        Position.Y = 284.000000000000000000
-        Text = 'Case sensitive'
-      end
-      object ReplaceModeSwitch: TSwitch
-        IsChecked = False
-        Position.X = 14.000000000000000000
-        Position.Y = 307.000000000000000000
-        Size.Width = 200.000000000000000000
-        Size.Height = 25.000000000000000000
-        Size.PlatformDefault = False
-      end
-      object ReplaceModeLabel: TLabel
-        Position.X = 42.000000000000000000
-        Position.Y = 311.000000000000000000
-        Text = 'Replace mode'
-      end
-    end
-    object FilterCard: TRectangle
-      Fill.Color = claNull
-      Position.X = 16.000000000000000000
-      Position.Y = 381.000000000000000000
-      Size.Width = 350.000000000000000000
-      Size.Height = 312.000000000000000000
-      Size.PlatformDefault = False
-      Stroke.Kind = None
-      object FilterCardTitle: TLabel
-        StyledSettings = [Family, FontColor]
-        Position.X = 14.000000000000000000
-        Position.Y = 12.000000000000000000
-        TextSettings.Font.Size = 14.000000000000000000
-        TextSettings.Font.StyleExt = {00060000000000000004000000}
-        Text = 'Filters'
-      end
-      object IncludeSubfoldersSwitch: TSwitch
-        IsChecked = False
-        Position.X = 14.000000000000000000
-        Position.Y = 53.000000000000000000
-        Size.Width = 200.000000000000000000
-        Size.Height = 25.000000000000000000
-        Size.PlatformDefault = False
-      end
-      object IncludeSubfoldersLabel: TLabel
-        Position.X = 42.000000000000000000
-        Position.Y = 57.000000000000000000
-        Text = 'Include subfolders'
-      end
-      object IncludeHiddenSwitch: TSwitch
-        IsChecked = False
-        Position.X = 14.000000000000000000
-        Position.Y = 79.000000000000000000
-        Size.Width = 200.000000000000000000
-        Size.Height = 25.000000000000000000
-        Size.PlatformDefault = False
-      end
-      object IncludeHiddenLabel: TLabel
-        Position.X = 42.000000000000000000
-        Position.Y = 83.000000000000000000
-        Text = 'Include hidden files'
-      end
-      object IncludeBinarySwitch: TSwitch
-        IsChecked = False
-        Position.X = 14.000000000000000000
-        Position.Y = 105.000000000000000000
-        Size.Width = 200.000000000000000000
-        Size.Height = 25.000000000000000000
-        Size.PlatformDefault = False
-      end
-      object IncludeBinaryLabel: TLabel
-        Position.X = 42.000000000000000000
-        Position.Y = 109.000000000000000000
-        Text = 'Include binary files'
-      end
-      object UseDateFromSwitch: TSwitch
-        IsChecked = False
-        Position.X = 14.000000000000000000
-        Position.Y = 135.000000000000000000
-        Size.Width = 200.000000000000000000
-        Size.Height = 25.000000000000000000
-        Size.PlatformDefault = False
-      end
-      object UseDateFromLabel: TLabel
-        Position.X = 42.000000000000000000
-        Position.Y = 138.000000000000000000
-        Size.Width = 143.000000000000000000
-        Size.Height = 17.000000000000000000
-        Size.PlatformDefault = False
-        Text = 'Use modified from date'
-      end
-      object DateFromEdit: TDateEdit
-        Date = 46276.000000000000000000
-        Position.X = 14.000000000000000000
-        Position.Y = 164.000000000000000000
-        Size.Width = 304.000000000000000000
-        Size.Height = 23.000000000000000000
-        Size.PlatformDefault = False
-      end
-      object UseDateToSwitch: TSwitch
-        IsChecked = False
-        Position.X = 14.000000000000000000
-        Position.Y = 192.000000000000000000
-        Size.Width = 200.000000000000000000
-        Size.Height = 27.000000000000000000
-        Size.PlatformDefault = False
-      end
-      object UseDateToLabel: TLabel
-        Position.X = 42.000000000000000000
-        Position.Y = 195.000000000000000000
-        Text = 'Use modified to date'
-      end
-      object DateToEdit: TDateEdit
-        Date = 46276.000000000000000000
-        Position.X = 14.000000000000000000
-        Position.Y = 221.000000000000000000
-        Size.Width = 304.000000000000000000
-        Size.Height = 23.000000000000000000
-        Size.PlatformDefault = False
-      end
-      object MinSizeLabel: TLabel
-        Position.X = 14.000000000000000000
-        Position.Y = 256.000000000000000000
-        Text = 'Min file size (bytes)'
-      end
-      object MinSizeEdit: TEdit
-        Touch.InteractiveGestures = [LongTap, DoubleTap]
-        Position.X = 14.000000000000000000
-        Position.Y = 274.000000000000000000
-        Size.Width = 144.000000000000000000
-        Size.Height = 23.000000000000000000
-        Size.PlatformDefault = False
-      end
-      object MaxSizeLabel: TLabel
-        Position.X = 174.000000000000000000
-        Position.Y = 256.000000000000000000
-        Text = 'Max file size (bytes)'
-      end
-      object MaxSizeEdit: TEdit
-        Touch.InteractiveGestures = [LongTap, DoubleTap]
-        Position.X = 174.000000000000000000
-        Position.Y = 274.000000000000000000
-        Size.Width = 144.000000000000000000
-        Size.Height = 23.000000000000000000
-        Size.PlatformDefault = False
-      end
+        Stroke.Kind = None
+        object FilterCardTitle: TLabel
+          StyledSettings = [Family, FontColor]
+          Position.X = 14.000000000000000000
+          Position.Y = 12.000000000000000000
+          TextSettings.Font.Size = 14.000000000000000000
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          Text = 'Filters'
+        end
+        object IncludeSubfoldersSwitch: TSwitch
+          IsChecked = False
+          Position.X = 14.000000000000000000
+          Position.Y = 53.000000000000000000
+          Size.Width = 200.000000000000000000
+          Size.Height = 25.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object IncludeSubfoldersLabel: TLabel
+          Position.X = 42.000000000000000000
+          Position.Y = 57.000000000000000000
+          Text = 'Include subfolders'
+        end
+        object IncludeHiddenSwitch: TSwitch
+          IsChecked = False
+          Position.X = 14.000000000000000000
+          Position.Y = 79.000000000000000000
+          Size.Width = 200.000000000000000000
+          Size.Height = 25.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object IncludeHiddenLabel: TLabel
+          Position.X = 42.000000000000000000
+          Position.Y = 83.000000000000000000
+          Text = 'Include hidden files'
+        end
+        object IncludeBinarySwitch: TSwitch
+          IsChecked = False
+          Position.X = 14.000000000000000000
+          Position.Y = 105.000000000000000000
+          Size.Width = 200.000000000000000000
+          Size.Height = 25.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object IncludeBinaryLabel: TLabel
+          Position.X = 42.000000000000000000
+          Position.Y = 109.000000000000000000
+          Text = 'Include binary files'
+        end
+        object UseDateFromSwitch: TSwitch
+          IsChecked = False
+          Position.X = 14.000000000000000000
+          Position.Y = 135.000000000000000000
+          Size.Width = 200.000000000000000000
+          Size.Height = 25.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object UseDateFromLabel: TLabel
+          Position.X = 42.000000000000000000
+          Position.Y = 138.000000000000000000
+          Size.Width = 143.000000000000000000
+          Size.Height = 17.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Use modified from date'
+        end
+        object DateFromEdit: TDateEdit
+          Date = 46276.000000000000000000
+          Position.X = 14.000000000000000000
+          Position.Y = 164.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 23.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object UseDateToSwitch: TSwitch
+          IsChecked = False
+          Position.X = 14.000000000000000000
+          Position.Y = 192.000000000000000000
+          Size.Width = 200.000000000000000000
+          Size.Height = 27.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object UseDateToLabel: TLabel
+          Position.X = 42.000000000000000000
+          Position.Y = 195.000000000000000000
+          Text = 'Use modified to date'
+        end
+        object DateToEdit: TDateEdit
+          Date = 46276.000000000000000000
+          Position.X = 14.000000000000000000
+          Position.Y = 221.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 23.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object MinSizeLabel: TLabel
+          Position.X = 14.000000000000000000
+          Position.Y = 256.000000000000000000
+          Text = 'Min file size (bytes)'
+        end
+        object MinSizeEdit: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Position.X = 14.000000000000000000
+          Position.Y = 274.000000000000000000
+          Size.Width = 144.000000000000000000
+          Size.Height = 23.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object MaxSizeLabel: TLabel
+          Position.X = 174.000000000000000000
+          Position.Y = 256.000000000000000000
+          Text = 'Max file size (bytes)'
+        end
+        object MaxSizeEdit: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Position.X = 174.000000000000000000
+          Position.Y = 274.000000000000000000
+          Size.Width = 144.000000000000000000
+          Size.Height = 23.000000000000000000
+          Size.PlatformDefault = False
+        end
       end
     end
     object ResultsLayout: TLayout
@@ -353,7 +353,7 @@ object MainForm: TMainForm
       object ResultsHeader: TRectangle
         Align = Top
         Fill.Color = claNull
-        Size.Width = 1561.000000000000000000
+        Size.Width = 727.000000000000000000
         Size.Height = 60.000000000000000000
         Size.PlatformDefault = False
         Stroke.Kind = None
@@ -392,6 +392,7 @@ object MainForm: TMainForm
         Stroke.Color = xFFD0D0D0
         object DetailsPanel: TRectangle
           Align = Bottom
+          Fill.Color = claWhite
           Size.Width = 727.000000000000000000
           Size.Height = 0.000000000000000000
           Size.PlatformDefault = False

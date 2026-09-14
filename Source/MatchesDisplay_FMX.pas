@@ -160,8 +160,8 @@ var
   DestinationRow: PByte;
 begin
   Result := nil;
-  IconWidth := GetSystemMetrics(SM_CXSMICON);
-  IconHeight := GetSystemMetrics(SM_CYSMICON);
+  IconWidth := GetSystemMetrics(SM_CXICON);
+  IconHeight := GetSystemMetrics(SM_CYICON);
   if (AIcon = 0) or (IconWidth <= 0) or (IconHeight <= 0) then
     Exit;
 
@@ -276,7 +276,7 @@ begin
 
   ZeroMemory(@FileInfo, SizeOf(FileInfo));
   if SHGetFileInfo(PChar(AFileName), 0, FileInfo, SizeOf(FileInfo),
-    SHGFI_ICON or SHGFI_SMALLICON) = 0 then
+    SHGFI_ICON or SHGFI_LARGEICON) = 0 then
     Exit;
 
   Icon := FileInfo.hIcon;
