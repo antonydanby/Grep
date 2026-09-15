@@ -182,7 +182,7 @@ Resource KEYBOARD_ARROW_UP_32DP not found
 
 # Annoying
 
-- I am not FORBIDDING you from using resources for images in the projects
+- I am now FORBIDDING you from using resources for images in the projects
   - Remove your resource loading code
 - If this is because you are creating buttons on the fly, then stop creating them on the fly
   - Instead add the buttons and load the image normally
