@@ -153,3 +153,16 @@ Please investigate and make this change
 
 ----------
 
+# Error on other machines
+
+- When I compile and run this code on another machine aside from this I am getting the following error:
+
+Cannot create file
+"C:\Users\QXZ6F6C\Resources\open_with_24dp.png". The
+system cannot find the path specified
+
+- The GrepVCL and GrepFMX projects should not attempt to open any config files or external png files
+- I have looked at the code and the png images are being loaded like resources. This is wrong
+
+Please investigate and fix
+

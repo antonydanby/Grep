@@ -216,26 +216,22 @@ begin
     AddWrappedParagraph(ACanvas, ADestination, ASourceLines[I], AMaxWidth);
 end;
 
-function FindResourceFile(const AFileName: string): string;
-var
-  BasePath: string;
-begin
-  BasePath := ExtractFilePath(ParamStr(0));
-  Result := BasePath + 'Resources\' + AFileName;
-  if not TFile.Exists(Result) then
-    Result := BasePath + '..\..\Resources\' + AFileName;
-end;
-
 procedure LoadButtonImage(const AButton: TButton; const AImages: TImageList;
   const AFileName: string);
 var
   PngImage: TPngImage;
   Bitmap: TBitmap;
+  Stream: TResourceStream;
 begin
   PngImage := TPngImage.Create;
   Bitmap := TBitmap.Create;
   try
-    PngImage.LoadFromFile(FindResourceFile(AFileName));
+    Stream := TResourceStream.Create(HInstance, UpperCase(ChangeFileExt(AFileName, '')), RT_RCDATA);
+    try
+      PngImage.LoadFromStream(Stream);
+    finally
+      Stream.Free;
+    end;
     Bitmap.Assign(PngImage);
     AButton.Caption := '';
     AButton.Images := AImages;

@@ -127,19 +127,10 @@ implementation
 
 {$R *.fmx}
 
-function FindResourceFile(const AFileName: string): string;
-var
-  BasePath: string;
-begin
-  BasePath := ExtractFilePath(ParamStr(0));
-  Result := BasePath + 'Resources\' + AFileName;
-  if not TFile.Exists(Result) then
-    Result := BasePath + '..\..\Resources\' + AFileName;
-end;
-
 procedure AddButtonImage(const AButton: TButton; const AFileName: string);
 var
   Image: TImage;
+  Stream: TResourceStream;
 begin
   Image := TImage.Create(AButton);
   Image.Parent := AButton;
@@ -147,7 +138,12 @@ begin
   Image.Width := 20;
   Image.Height := 20;
   Image.HitTest := False;
-  Image.Bitmap.LoadFromFile(FindResourceFile(AFileName));
+  Stream := TResourceStream.Create(HInstance, UpperCase(ChangeFileExt(AFileName, '')), RT_RCDATA);
+  try
+    Image.Bitmap.LoadFromStream(Stream);
+  finally
+    Stream.Free;
+  end;
 end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
