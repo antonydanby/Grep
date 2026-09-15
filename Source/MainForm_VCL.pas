@@ -22,8 +22,6 @@ uses
   Vcl.StdCtrls,
   Vcl.ExtCtrls,
   Vcl.ComCtrls,
-  Vcl.ImgList,
-  Vcl.Imaging.pngimage,
   Vcl.Samples.Spin,
   Vcl.FileCtrl,
   Grep.Core,
@@ -114,7 +112,6 @@ type
     FPreviousMatchButton: TButton;
     FNextMatchButton: TButton;
     FMatchPositionLabel: TLabel;
-    FDetailImages: TImageList;
 
     procedure ConfigureGrepFromForm;
     procedure ClearResults;
@@ -216,37 +213,6 @@ begin
     AddWrappedParagraph(ACanvas, ADestination, ASourceLines[I], AMaxWidth);
 end;
 
-procedure LoadButtonImage(const AButton: TButton; const AImages: TImageList;
-  const AFileName: string);
-var
-  PngImage: TPngImage;
-  Bitmap: TBitmap;
-  Stream: TResourceStream;
-begin
-  PngImage := TPngImage.Create;
-  Bitmap := TBitmap.Create;
-  try
-    Stream := TResourceStream.Create(HInstance, UpperCase(ChangeFileExt(AFileName, '')), RT_RCDATA);
-    try
-      PngImage.LoadFromStream(Stream);
-    finally
-      Stream.Free;
-    end;
-    Bitmap.Assign(PngImage);
-    AButton.Caption := '';
-    AButton.Images := AImages;
-    AButton.ImageIndex := AImages.Add(Bitmap, nil);
-    AButton.ImageAlignment := iaCenter;
-    AButton.ImageMargins.Left := 18;
-    AButton.ImageMargins.Right := 18;
-    AButton.ImageMargins.Top := 10;
-    AButton.ImageMargins.Bottom := 10;
-  finally
-    Bitmap.Free;
-    PngImage.Free;
-  end;
-end;
-
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
   FGrep := TGrep.Create;
@@ -268,14 +234,9 @@ begin
   FTogglePaintBox.Align := alClient;
   FTogglePaintBox.OnPaint := TogglePaintBoxPaint;
   FTogglePaintBox.OnClick := TogglePanelClick;
-  FDetailImages := TImageList.Create(Self);
-  FDetailImages.Width := 24;
-  FDetailImages.Height := 24;
-  FDetailImages.ColorDepth := cd32Bit;
-
   FOpenButton := TButton.Create(Self);
   FOpenButton.Parent := TogglePanel;
-  FOpenButton.Caption := '';
+  FOpenButton.Caption := 'Open';
   FOpenButton.Width := 60;
   FOpenButton.Height := 44;
   FOpenButton.Left := TogglePanel.ClientWidth - 68;
@@ -284,7 +245,6 @@ begin
   FOpenButton.TabStop := False;
   FOpenButton.OnClick := OpenButtonClick;
   FOpenButton.OnKeyDown := FormKeyDown;
-  LoadButtonImage(FOpenButton, FDetailImages, 'open_with_24dp.png');
   FOpenButton.BringToFront;
 
   FMatchPositionLabel := TLabel.Create(Self);
@@ -299,7 +259,7 @@ begin
 
   FPreviousMatchButton := TButton.Create(Self);
   FPreviousMatchButton.Parent := TogglePanel;
-  FPreviousMatchButton.Caption := '';
+  FPreviousMatchButton.Caption := 'Up';
   FPreviousMatchButton.Width := 60;
   FPreviousMatchButton.Height := 44;
   FPreviousMatchButton.Left := TogglePanel.ClientWidth - 68;
@@ -308,11 +268,10 @@ begin
   FPreviousMatchButton.TabStop := False;
   FPreviousMatchButton.OnClick := PreviousMatchButtonClick;
   FPreviousMatchButton.OnKeyDown := FormKeyDown;
-  LoadButtonImage(FPreviousMatchButton, FDetailImages, 'keyboard_arrow_up_24dp.png');
 
   FNextMatchButton := TButton.Create(Self);
   FNextMatchButton.Parent := TogglePanel;
-  FNextMatchButton.Caption := '';
+  FNextMatchButton.Caption := 'Down';
   FNextMatchButton.Width := 60;
   FNextMatchButton.Height := 44;
   FNextMatchButton.Left := TogglePanel.ClientWidth - 68;
@@ -321,7 +280,6 @@ begin
   FNextMatchButton.TabStop := False;
   FNextMatchButton.OnClick := NextMatchButtonClick;
   FNextMatchButton.OnKeyDown := FormKeyDown;
-  LoadButtonImage(FNextMatchButton, FDetailImages, 'keyboard_arrow_down_24dp.png');
 
   dtpDateFrom.Date := Now - 30;
   dtpDateTo.Date := Now;

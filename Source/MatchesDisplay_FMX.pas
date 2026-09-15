@@ -95,25 +95,6 @@ begin
   Result := Trim(Result);
 end;
 
-procedure AddButtonImage(const AButton: TButton; const AFileName: string);
-var
-  Image: TImage;
-  Stream: TResourceStream;
-begin
-  Image := TImage.Create(AButton);
-  Image.Parent := AButton;
-  Image.Align := TAlignLayout.Center;
-  Image.Width := 20;
-  Image.Height := 20;
-  Image.HitTest := False;
-  Stream := TResourceStream.Create(HInstance, UpperCase(ChangeFileExt(AFileName, '')), RT_RCDATA);
-  try
-    Image.Bitmap.LoadFromStream(Stream);
-  finally
-    Stream.Free;
-  end;
-end;
-
 procedure AddWrappedParagraph(ACanvas: TCanvas; ALines: TStrings; const AParagraph: string;
   const AMaxWidth: Single);
 var
@@ -289,25 +270,23 @@ begin
 
     FPreviousMatchButton := TButton.Create(AOwner);
     FPreviousMatchButton.Parent := FDetailsPanel;
-    FPreviousMatchButton.Text := '';
+    FPreviousMatchButton.Text := 'Up';
     FPreviousMatchButton.Width := 60;
     FPreviousMatchButton.Height := 44;
     FPreviousMatchButton.Position.X := FDetailsPanel.Width - 74;
     FPreviousMatchButton.Position.Y := 82;
     FPreviousMatchButton.Anchors := [TAnchorKind.akTop, TAnchorKind.akRight];
     FPreviousMatchButton.OnClick := PreviousMatchButtonClick;
-    AddButtonImage(FPreviousMatchButton, 'keyboard_arrow_up_32dp.png');
 
     FNextMatchButton := TButton.Create(AOwner);
     FNextMatchButton.Parent := FDetailsPanel;
-    FNextMatchButton.Text := '';
+    FNextMatchButton.Text := 'Down';
     FNextMatchButton.Width := 60;
     FNextMatchButton.Height := 44;
     FNextMatchButton.Position.X := FDetailsPanel.Width - 74;
     FNextMatchButton.Position.Y := 130;
     FNextMatchButton.Anchors := [TAnchorKind.akTop, TAnchorKind.akRight];
     FNextMatchButton.OnClick := NextMatchButtonClick;
-    AddButtonImage(FNextMatchButton, 'keyboard_arrow_down_32dp.png');
     HideDetails;
   end;
 end;

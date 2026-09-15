@@ -1,4 +1,1 @@
 MAINICON ICON "Resources\favicon.ico"
-OPEN_WITH_24DP RCDATA "Resources\open_with_24dp.png"
-KEYBOARD_ARROW_UP_24DP RCDATA "Resources\keyboard_arrow_up_24dp.png"
-KEYBOARD_ARROW_DOWN_24DP RCDATA "Resources\keyboard_arrow_down_24dp.png"

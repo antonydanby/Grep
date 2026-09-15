@@ -166,3 +166,30 @@ system cannot find the path specified
 
 Please investigate and fix
 
+----------
+
+# Error on this machine now
+
+- When I compile and run GrepVCL and GrepFMX I am getting the following errors:
+
+GrepVCL:
+Resource OPEN_WITH_24DP not found.
+
+GrepFMX:
+Exception EResNotFound in module GrepFMX at
+00000000012EEFE.
+Resource KEYBOARD_ARROW_UP_32DP not found
+
+# Annoying
+
+- I am not FORBIDDING you from using resources for images in the projects
+  - Remove your resource loading code
+- If this is because you are creating buttons on the fly, then stop creating them on the fly
+  - Instead add the buttons and load the image normally
+- If you can't achieve this, then revert back to using Open, Up and Down as text 
+
+
+Please investigate and fix
+
+----------
+

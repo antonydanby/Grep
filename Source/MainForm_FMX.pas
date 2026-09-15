@@ -127,25 +127,6 @@ implementation
 
 {$R *.fmx}
 
-procedure AddButtonImage(const AButton: TButton; const AFileName: string);
-var
-  Image: TImage;
-  Stream: TResourceStream;
-begin
-  Image := TImage.Create(AButton);
-  Image.Parent := AButton;
-  Image.Align := TAlignLayout.Center;
-  Image.Width := 20;
-  Image.Height := 20;
-  Image.HitTest := False;
-  Stream := TResourceStream.Create(HInstance, UpperCase(ChangeFileExt(AFileName, '')), RT_RCDATA);
-  try
-    Image.Bitmap.LoadFromStream(Stream);
-  finally
-    Stream.Free;
-  end;
-end;
-
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
   MatchesListView.OnKeyDown := FormKeyDown;
@@ -168,14 +149,13 @@ begin
 
   FOpenButton := TButton.Create(Self);
   FOpenButton.Parent := DetailsPanel;
-  FOpenButton.Text := '';
+  FOpenButton.Text := 'Open';
   FOpenButton.Width := 60;
   FOpenButton.Height := 44;
   FOpenButton.Position.X := DetailsPanel.Width - FOpenButton.Width - 14;
   FOpenButton.Position.Y := 8;
   FOpenButton.Anchors := [TAnchorKind.akTop, TAnchorKind.akRight];
   FOpenButton.OnClick := OpenButtonClick;
-  AddButtonImage(FOpenButton, 'open_with_32dp.png');
   FOpenButton.BringToFront;
 
   ContextLinesBox.Min := 0;
