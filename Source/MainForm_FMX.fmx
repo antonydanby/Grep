@@ -1,7 +1,7 @@
 object MainForm: TMainForm
   Left = 0
   Top = 0
-  Caption = 'Grep'
+  Caption = 'Quick Grep'
   ClientHeight = 730
   ClientWidth = 945
   Position = ScreenCenter
@@ -29,7 +29,7 @@ object MainForm: TMainForm
       Size.PlatformDefault = False
       TextSettings.Font.Size = 20.000000000000000000
       TextSettings.Font.StyleExt = {00070000000000000004000000}
-      Text = 'Grep FMX'
+      Text = 'Quick Grep'
     end
     object SubtitleLabel: TLabel
       StyledSettings = []

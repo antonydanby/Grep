@@ -22,6 +22,8 @@ uses
   Vcl.StdCtrls,
   Vcl.ExtCtrls,
   Vcl.ComCtrls,
+  Vcl.ImgList,
+  Vcl.Imaging.pngimage,
   Vcl.Samples.Spin,
   Vcl.FileCtrl,
   Grep.Core,
@@ -112,6 +114,7 @@ type
     FPreviousMatchButton: TButton;
     FNextMatchButton: TButton;
     FMatchPositionLabel: TLabel;
+    FDetailImages: TImageList;
 
     procedure ConfigureGrepFromForm;
     procedure ClearResults;
@@ -213,6 +216,41 @@ begin
     AddWrappedParagraph(ACanvas, ADestination, ASourceLines[I], AMaxWidth);
 end;
 
+function FindResourceFile(const AFileName: string): string;
+var
+  BasePath: string;
+begin
+  BasePath := ExtractFilePath(ParamStr(0));
+  Result := BasePath + 'Resources\' + AFileName;
+  if not TFile.Exists(Result) then
+    Result := BasePath + '..\..\Resources\' + AFileName;
+end;
+
+procedure LoadButtonImage(const AButton: TButton; const AImages: TImageList;
+  const AFileName: string);
+var
+  PngImage: TPngImage;
+  Bitmap: TBitmap;
+begin
+  PngImage := TPngImage.Create;
+  Bitmap := TBitmap.Create;
+  try
+    PngImage.LoadFromFile(FindResourceFile(AFileName));
+    Bitmap.Assign(PngImage);
+    AButton.Caption := '';
+    AButton.Images := AImages;
+    AButton.ImageIndex := AImages.Add(Bitmap, nil);
+    AButton.ImageAlignment := iaCenter;
+    AButton.ImageMargins.Left := 18;
+    AButton.ImageMargins.Right := 18;
+    AButton.ImageMargins.Top := 10;
+    AButton.ImageMargins.Bottom := 10;
+  finally
+    Bitmap.Free;
+    PngImage.Free;
+  end;
+end;
+
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
   FGrep := TGrep.Create;
@@ -234,16 +272,23 @@ begin
   FTogglePaintBox.Align := alClient;
   FTogglePaintBox.OnPaint := TogglePaintBoxPaint;
   FTogglePaintBox.OnClick := TogglePanelClick;
+  FDetailImages := TImageList.Create(Self);
+  FDetailImages.Width := 24;
+  FDetailImages.Height := 24;
+  FDetailImages.ColorDepth := cd32Bit;
 
   FOpenButton := TButton.Create(Self);
   FOpenButton.Parent := TogglePanel;
-  FOpenButton.Caption := 'Open';
+  FOpenButton.Caption := '';
   FOpenButton.Width := 60;
-  FOpenButton.Height := 25;
+  FOpenButton.Height := 44;
   FOpenButton.Left := TogglePanel.ClientWidth - 68;
   FOpenButton.Top := 8;
   FOpenButton.Anchors := [akTop, akRight];
+  FOpenButton.TabStop := False;
   FOpenButton.OnClick := OpenButtonClick;
+  FOpenButton.OnKeyDown := FormKeyDown;
+  LoadButtonImage(FOpenButton, FDetailImages, 'open_with_24dp.png');
   FOpenButton.BringToFront;
 
   FMatchPositionLabel := TLabel.Create(Self);
@@ -251,30 +296,36 @@ begin
   FMatchPositionLabel.Width := 60;
   FMatchPositionLabel.Height := 17;
   FMatchPositionLabel.Left := TogglePanel.ClientWidth - 68;
-  FMatchPositionLabel.Top := 38;
+  FMatchPositionLabel.Top := 60;
   FMatchPositionLabel.Alignment := taCenter;
   FMatchPositionLabel.Font.Style := [fsBold];
   FMatchPositionLabel.Anchors := [akTop, akRight];
 
   FPreviousMatchButton := TButton.Create(Self);
   FPreviousMatchButton.Parent := TogglePanel;
-  FPreviousMatchButton.Caption := 'Up';
+  FPreviousMatchButton.Caption := '';
   FPreviousMatchButton.Width := 60;
-  FPreviousMatchButton.Height := 22;
+  FPreviousMatchButton.Height := 44;
   FPreviousMatchButton.Left := TogglePanel.ClientWidth - 68;
-  FPreviousMatchButton.Top := 58;
+  FPreviousMatchButton.Top := 82;
   FPreviousMatchButton.Anchors := [akTop, akRight];
+  FPreviousMatchButton.TabStop := False;
   FPreviousMatchButton.OnClick := PreviousMatchButtonClick;
+  FPreviousMatchButton.OnKeyDown := FormKeyDown;
+  LoadButtonImage(FPreviousMatchButton, FDetailImages, 'keyboard_arrow_up_24dp.png');
 
   FNextMatchButton := TButton.Create(Self);
   FNextMatchButton.Parent := TogglePanel;
-  FNextMatchButton.Caption := 'Down';
+  FNextMatchButton.Caption := '';
   FNextMatchButton.Width := 60;
-  FNextMatchButton.Height := 22;
+  FNextMatchButton.Height := 44;
   FNextMatchButton.Left := TogglePanel.ClientWidth - 68;
-  FNextMatchButton.Top := 82;
+  FNextMatchButton.Top := 130;
   FNextMatchButton.Anchors := [akTop, akRight];
+  FNextMatchButton.TabStop := False;
   FNextMatchButton.OnClick := NextMatchButtonClick;
+  FNextMatchButton.OnKeyDown := FormKeyDown;
+  LoadButtonImage(FNextMatchButton, FDetailImages, 'keyboard_arrow_down_24dp.png');
 
   dtpDateFrom.Date := Now - 30;
   dtpDateTo.Date := Now;
@@ -297,6 +348,13 @@ end;
 
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
+  if (Key = Ord('O')) and (ssCtrl in Shift) then
+  begin
+    OpenButtonClick(nil);
+    Key := 0;
+    Exit;
+  end;
+
   case Key of
     VK_UP:
       SetToggleMatchIndex(FToggleMatchIndex - 1);
@@ -658,7 +716,7 @@ begin
   Inc(TotalHeight, 16);
 
   MaxAvailableHeight := Max(120, MatchesPanel.ClientHeight - ResultsHeaderPanel.Height - 24);
-  Result := EnsureRange(TotalHeight, 112, MaxAvailableHeight);
+  Result := EnsureRange(TotalHeight, 180, MaxAvailableHeight);
 end;
 
 procedure TMainForm.ExpandToggleForItem(AItem: TListItem);
@@ -674,6 +732,7 @@ begin
   SetToggleMatchIndex(0);
   TogglePanel.Visible := True;
   AItem.MakeVisible(False);
+  MatchesListView.SetFocus;
 end;
 
 procedure TMainForm.SetToggleMatchIndex(const AIndex: Integer);
@@ -710,11 +769,13 @@ end;
 procedure TMainForm.PreviousMatchButtonClick(Sender: TObject);
 begin
   SetToggleMatchIndex(FToggleMatchIndex - 1);
+  MatchesListView.SetFocus;
 end;
 
 procedure TMainForm.NextMatchButtonClick(Sender: TObject);
 begin
   SetToggleMatchIndex(FToggleMatchIndex + 1);
+  MatchesListView.SetFocus;
 end;
 
 procedure TMainForm.BuildToggleWrappedLines;

@@ -1,7 +1,7 @@
 object MainForm: TMainForm
   Left = 0
   Top = 0
-  Caption = 'Grep'
+  Caption = 'Quick Grep'
   ClientHeight = 769
   ClientWidth = 884
   Color = clBtnFace
@@ -12,8 +12,8 @@ object MainForm: TMainForm
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
-  Position = poScreenCenter
   KeyPreview = True
+  Position = poScreenCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
@@ -33,9 +33,9 @@ object MainForm: TMainForm
     object TitleLabel: TLabel
       Left = 24
       Top = 6
-      Width = 79
+      Width = 95
       Height = 25
-      Caption = 'Grep VCL'
+      Caption = 'Quick Grep'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -19

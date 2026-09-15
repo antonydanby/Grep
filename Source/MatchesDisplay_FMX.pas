@@ -84,7 +84,7 @@ implementation
 
 const
   cDetailsPadding = 14;
-  cCollapsedHeight = 112;
+  cCollapsedHeight = 180;
   cMinListHeight = 120;
 
 function NormalizePreviewText(const AText: string): string;
@@ -93,6 +93,29 @@ begin
   Result := StringReplace(Result, #13, ' ', [rfReplaceAll]);
   Result := StringReplace(Result, #10, ' ', [rfReplaceAll]);
   Result := Trim(Result);
+end;
+
+function FindResourceFile(const AFileName: string): string;
+var
+  BasePath: string;
+begin
+  BasePath := ExtractFilePath(ParamStr(0));
+  Result := BasePath + 'Resources\' + AFileName;
+  if not TFile.Exists(Result) then
+    Result := BasePath + '..\..\Resources\' + AFileName;
+end;
+
+procedure AddButtonImage(const AButton: TButton; const AFileName: string);
+var
+  Image: TImage;
+begin
+  Image := TImage.Create(AButton);
+  Image.Parent := AButton;
+  Image.Align := TAlignLayout.Center;
+  Image.Width := 20;
+  Image.Height := 20;
+  Image.HitTest := False;
+  Image.Bitmap.LoadFromFile(FindResourceFile(AFileName));
 end;
 
 procedure AddWrappedParagraph(ACanvas: TCanvas; ALines: TStrings; const AParagraph: string;
@@ -263,30 +286,32 @@ begin
     FMatchPositionLabel.Width := 60;
     FMatchPositionLabel.Height := 20;
     FMatchPositionLabel.Position.X := FDetailsPanel.Width - 74;
-    FMatchPositionLabel.Position.Y := 40;
+    FMatchPositionLabel.Position.Y := 60;
     FMatchPositionLabel.Anchors := [TAnchorKind.akTop, TAnchorKind.akRight];
     FMatchPositionLabel.TextSettings.Font.Style := [TFontStyle.fsBold];
     FMatchPositionLabel.TextSettings.HorzAlign := TTextAlign.Center;
 
     FPreviousMatchButton := TButton.Create(AOwner);
     FPreviousMatchButton.Parent := FDetailsPanel;
-    FPreviousMatchButton.Text := 'Up';
+    FPreviousMatchButton.Text := '';
     FPreviousMatchButton.Width := 60;
-    FPreviousMatchButton.Height := 22;
+    FPreviousMatchButton.Height := 44;
     FPreviousMatchButton.Position.X := FDetailsPanel.Width - 74;
-    FPreviousMatchButton.Position.Y := 60;
+    FPreviousMatchButton.Position.Y := 82;
     FPreviousMatchButton.Anchors := [TAnchorKind.akTop, TAnchorKind.akRight];
     FPreviousMatchButton.OnClick := PreviousMatchButtonClick;
+    AddButtonImage(FPreviousMatchButton, 'keyboard_arrow_up_32dp.png');
 
     FNextMatchButton := TButton.Create(AOwner);
     FNextMatchButton.Parent := FDetailsPanel;
-    FNextMatchButton.Text := 'Down';
+    FNextMatchButton.Text := '';
     FNextMatchButton.Width := 60;
-    FNextMatchButton.Height := 22;
+    FNextMatchButton.Height := 44;
     FNextMatchButton.Position.X := FDetailsPanel.Width - 74;
-    FNextMatchButton.Position.Y := 84;
+    FNextMatchButton.Position.Y := 130;
     FNextMatchButton.Anchors := [TAnchorKind.akTop, TAnchorKind.akRight];
     FNextMatchButton.OnClick := NextMatchButtonClick;
+    AddButtonImage(FNextMatchButton, 'keyboard_arrow_down_32dp.png');
     HideDetails;
   end;
 end;

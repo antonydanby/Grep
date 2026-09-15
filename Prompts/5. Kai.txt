@@ -55,3 +55,101 @@ Please investigate and make this change
 
 
 ----------
+
+# A few changes to the Open, Up, Down buttons on the DisplayPanel
+
+- On the Open button on the DisplayPanel, remove the word Open and instead use the image found at @Resources/open_with_32dp.png
+- On the Up button on the DisplayPanel, remove the word Up and instead use the image found at @Resources/keyboard_arrow_up_32dp.png
+- On the Down button on the DisplayPanel, remove the word Down and instead use the image found at @Resources/keyboard_arrow_down_32dp.png
+- The user should be able to use the windows Ctrl-O keys to Open the file
+- The buttons should still align under each other neatly at the top right hand side of DisplayPanel
+
+So:
+	|-------|
+	| image | 
+	|-------|
+	
+           1/5
+     
+	|-------|
+	| image |
+	|-------|
+	|-------|
+	| image |
+	|-------|
+
+## NOTE:
+
+- This change is for the GrepFMX and the GrepVCL project 
+
+Please investigate and make this change
+
+
+----------
+
+# Open, Up, Down button height on the DisplayPanel
+
+- The Open, Up and Down button heights need amending. 
+  - The image is being truncated. The height needs to be almost double what it is now
+- You will, of course, need to move the buttons down to cater for this
+- The open button will still remain at the same postion
+  - The 1/5 label and the up, down buttons will need to be moved down
+- The buttons should still align under each other neatly at the top right hand side of DisplayPanel
+
+So:
+	|-------|
+	| image | 
+	|-------|
+	
+           1/5
+     
+	|-------|
+	| image |
+	|-------|
+	|-------|
+	| image |
+	|-------|
+
+## NOTE:
+
+- This change is for the GrepFMX and the GrepVCL project 
+
+Please investigate and make this change
+
+----------
+
+# Open, Up, Down button height on the DisplayPanel
+
+- Open, Up, Down button height on the DisplayPanel on the GrepVCL are still truncating
+  - On the GrepFMX project these buttons are fine
+  - I have observed that these buttons on GrepVCL are not centred and I believe this may be the issue
+- I have made the versions of the images that are smaller for GrepVCL, should you need them
+  - On the Open button on the DisplayPanel, instead use the image found at @Resources/open_with_24dp.png
+  - On the Up button on the DisplayPanel, instead use the image found at @Resources/keyboard_arrow_up_24dp.png
+  - On the Down button on the DisplayPanel, instead use the image found at @Resources/keyboard_arrow_down_24dp.png
+
+## NOTE:
+
+- This change is only for the GrepVCL as the buttons seem fine on the GrepFMX projects
+- It might be an idea to see why this is
+
+Please investigate and make this change
+
+----------
+
+# Open, Up, Down button height on the DisplayPanel
+
+- You have broken the Up and Down keys for the DisplayPanel in the GrepVCL project 
+  - Pressing Up,Down does not allow the user to go up and down through a files matches as it did before
+- The user should not be able to Tab through the buttons in here 
+  - TabStop should be False for all of them
+
+## NOTE:
+
+- This change is only for the GrepVCL as the buttons seem fine on the GrepFMX projects
+- It might be an idea to see why this is
+
+Please investigate and make this change
+
+----------
+

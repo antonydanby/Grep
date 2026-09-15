@@ -127,6 +127,29 @@ implementation
 
 {$R *.fmx}
 
+function FindResourceFile(const AFileName: string): string;
+var
+  BasePath: string;
+begin
+  BasePath := ExtractFilePath(ParamStr(0));
+  Result := BasePath + 'Resources\' + AFileName;
+  if not TFile.Exists(Result) then
+    Result := BasePath + '..\..\Resources\' + AFileName;
+end;
+
+procedure AddButtonImage(const AButton: TButton; const AFileName: string);
+var
+  Image: TImage;
+begin
+  Image := TImage.Create(AButton);
+  Image.Parent := AButton;
+  Image.Align := TAlignLayout.Center;
+  Image.Width := 20;
+  Image.Height := 20;
+  Image.HitTest := False;
+  Image.Bitmap.LoadFromFile(FindResourceFile(AFileName));
+end;
+
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
   MatchesListView.OnKeyDown := FormKeyDown;
@@ -149,13 +172,14 @@ begin
 
   FOpenButton := TButton.Create(Self);
   FOpenButton.Parent := DetailsPanel;
-  FOpenButton.Text := 'Open';
+  FOpenButton.Text := '';
   FOpenButton.Width := 60;
-  FOpenButton.Height := 28;
-  FOpenButton.Position.X := DetailsPanel.Width - FOpenButton.Width - 12;
+  FOpenButton.Height := 44;
+  FOpenButton.Position.X := DetailsPanel.Width - FOpenButton.Width - 14;
   FOpenButton.Position.Y := 8;
   FOpenButton.Anchors := [TAnchorKind.akTop, TAnchorKind.akRight];
   FOpenButton.OnClick := OpenButtonClick;
+  AddButtonImage(FOpenButton, 'open_with_32dp.png');
   FOpenButton.BringToFront;
 
   ContextLinesBox.Min := 0;
@@ -186,6 +210,14 @@ end;
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: WideChar;
   Shift: TShiftState);
 begin
+  if (Key = Ord('O')) and (ssCtrl in Shift) then
+  begin
+    OpenButtonClick(nil);
+    Key := 0;
+    KeyChar := #0;
+    Exit;
+  end;
+
   case Key of
     vkUp:
       FMatchesDisplay.SelectPreviousMatch;
