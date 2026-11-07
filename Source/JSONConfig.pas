@@ -156,30 +156,31 @@ begin
 end;
 
 procedure TJSONConfig.DeleteKey(const aKey: string);
-var
-  value: TJsonValue;
 begin
-  value := GetJsonValue(aKey);
-  if Assigned(value) then fJSONObject.RemovePair(aKey);
+  fJSONObject.RemovePair(aKey).Free;
 end;
 
 procedure TJSONConfig.SetString(const aKey, aValue: string);
 begin
+  DeleteKey(aKey);
   fJSONObject.AddPair(aKey, aValue);
 end;
 
 procedure TJSONConfig.SetInteger(const aKey: string; aValue: Integer);
 begin
+  DeleteKey(aKey);
   fJSONObject.AddPair(aKey, TJSONNumber.Create(aValue));
 end;
 
 procedure TJSONConfig.SetFloat(const aKey: string; aValue: Double);
 begin
+  DeleteKey(aKey);
   fJSONObject.AddPair(aKey, TJSONNumber.Create(aValue));
 end;
 
 procedure TJSONConfig.SetBoolean(const aKey: string; aValue: Boolean);
 begin
+  DeleteKey(aKey);
   fJSONObject.AddPair(aKey, TJSONBool.Create(aValue));
 end;
 
@@ -187,16 +188,19 @@ procedure TJSONConfig.SetDateTime(const aKey: string; aValue: TDateTime);
 begin
   // Store TDateTime as an ISO 8601 string for unambiguous representation
   // Example: '2023-10-27T10:30:00.000Z'
+  DeleteKey(aKey);
   fJSONObject.AddPair(aKey, DateToISO8601(aValue));
 end;
 
 procedure TJSONConfig.SetTime(const aKey: string; aValue: TTime);
 begin
+  DeleteKey(aKey);
   fJSONObject.AddPair(aKey, FormatDateTime('hh:nn', aValue));
 end;
 
 procedure TJSONConfig.SetJSONArray(const aKey: string; aValue: TJSONArray);
 begin
+  DeleteKey(aKey);
   // Add a clone of the array. AddPair will take ownership of the clone,
   // leaving the original object's ownership with the caller.
   fJSONObject.AddPair(aKey, TJSONArray(aValue.Clone));

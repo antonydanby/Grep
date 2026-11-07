@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{289455AA-7194-47D7-B9A4-D422A6699662}</ProjectGuid>
-        <ProjectVersion>20.4</ProjectVersion>
+        <ProjectVersion>20.5</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Release</Config>

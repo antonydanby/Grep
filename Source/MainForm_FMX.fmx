@@ -439,10 +439,19 @@ object MainForm: TMainForm
           Size.Width = 543.000000000000000000
           Size.Height = 554.000000000000000000
           Size.PlatformDefault = False
-          ItemAppearance.ItemHeight = 42
-          ItemAppearance.ItemEditHeight = 42
-          ItemAppearance.HeaderHeight = 22
-          ItemAppearance.FooterHeight = 22
+          ItemAppearance.ItemHeight = 28
+          ItemAppearance.ItemEditHeight = 28
+          ItemAppearance.HeaderHeight = 2
+          ItemAppearance.FooterHeight = 2
+          ItemAppearanceObjects.ItemObjects.Text.Font.Size = 11.000000000000000000
+          ItemAppearanceObjects.ItemObjects.Text.Width = 469.000000000000000000
+          ItemAppearanceObjects.ItemObjects.Text.Height = 22.000000000000000000
+          ItemAppearanceObjects.ItemObjects.Text.PlaceOffset.Y = 3.000000000000000000
+          ItemAppearanceObjects.ItemObjects.Accessory.Width = 30.000000000000000000
+          ItemAppearanceObjects.ItemObjects.Accessory.Height = 22.000000000000000000
+          ItemAppearanceObjects.ItemObjects.Accessory.PlaceOffset.X = -8.000000000000000000
+          ItemAppearanceObjects.HeaderObjects.Text.Visible = False
+          ItemAppearanceObjects.FooterObjects.Text.Visible = False
         end
       end
     end

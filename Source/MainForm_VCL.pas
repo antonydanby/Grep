@@ -25,7 +25,8 @@ uses
   Vcl.Samples.Spin,
   Vcl.FileCtrl,
   Grep.Core,
-  MatchesList;
+  MatchesList,
+  JSONConfig;
 
 type
   TMainForm = class(TForm)
@@ -113,6 +114,10 @@ type
     FNextMatchButton: TButton;
     FMatchPositionLabel: TLabel;
 
+    function ConfigFilePath: string;
+    function ResolutionKey: string;
+    procedure LoadConfig;
+    procedure SaveConfig;
     procedure ConfigureGrepFromForm;
     procedure ClearResults;
     procedure FinalizeSearchIfReady(const ASearchRequestId: Integer);
@@ -287,10 +292,100 @@ begin
   UpdateSearchUi(False);
   ClearResults;
   UpdateStatusText('Configure the search options and start a new Grep.');
+  LoadConfig;
+end;
+
+function TMainForm.ConfigFilePath: string;
+begin
+  Result := TPath.Combine(TPath.GetHomePath, 'GrepVCL');
+  Result := TPath.Combine(Result, 'config.json');
+end;
+
+function TMainForm.ResolutionKey: string;
+begin
+  Result := Format('Window.%dx%d.', [Screen.Width, Screen.Height]);
+end;
+
+procedure TMainForm.LoadConfig;
+var
+  Config: TJSONConfig;
+  Key: string;
+  I: Integer;
+  W, H, L, T: Integer;
+begin
+  Config := TJSONConfig.Create;
+  try
+    try
+      TDirectory.CreateDirectory(ExtractFilePath(ConfigFilePath));
+      Config.LoadFromFile(ConfigFilePath, True);
+
+      Key := ResolutionKey;
+      if Config.HasKey(Key + 'Width') and Config.HasKey(Key + 'Height') then
+      begin
+        W := Config.GetInteger(Key + 'Width');
+        H := Config.GetInteger(Key + 'Height');
+        L := Config.GetInteger(Key + 'Left');
+        T := Config.GetInteger(Key + 'Top');
+        if (W >= Constraints.MinWidth) and (H >= Constraints.MinHeight) and
+          (L > -W) and (T >= 0) and (L < Screen.Width) and (T < Screen.Height) then
+        begin
+          Position := poDesigned;
+          SetBounds(L, T, W, H);
+        end;
+      end;
+
+      for I := 0 to MatchesListView.Columns.Count - 1 do
+        MatchesListView.Columns[I].Width :=
+          Config.GetInteger(Format('MatchesListView.Column%d', [I]), MatchesListView.Columns[I].Width);
+    except
+      // A missing or unreadable config must never stop the application
+    end;
+  finally
+    Config.Free;
+  end;
+end;
+
+procedure TMainForm.SaveConfig;
+var
+  Config: TJSONConfig;
+  Key: string;
+  I: Integer;
+begin
+  Config := TJSONConfig.Create;
+  try
+    try
+      TDirectory.CreateDirectory(ExtractFilePath(ConfigFilePath));
+      if TFile.Exists(ConfigFilePath) then
+        try
+          Config.LoadFromFile(ConfigFilePath);
+        except
+          Config.Clear;
+        end;
+
+      if WindowState = wsNormal then
+      begin
+        Key := ResolutionKey;
+        Config.SetInteger(Key + 'Left', Left);
+        Config.SetInteger(Key + 'Top', Top);
+        Config.SetInteger(Key + 'Width', Width);
+        Config.SetInteger(Key + 'Height', Height);
+      end;
+
+      for I := 0 to MatchesListView.Columns.Count - 1 do
+        Config.SetInteger(Format('MatchesListView.Column%d', [I]), MatchesListView.Columns[I].Width);
+
+      Config.SaveToFile(ConfigFilePath);
+    except
+      // Failing to persist settings must not block shutdown
+    end;
+  finally
+    Config.Free;
+  end;
 end;
 
 procedure TMainForm.FormDestroy(Sender: TObject);
 begin
+  SaveConfig;
   FGrep.Stop;
   FWrappedBelow.Free;
   FWrappedMatch.Free;

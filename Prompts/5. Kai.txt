@@ -193,3 +193,15 @@ Please investigate and fix
 
 ----------
 
+# Row height on MatchesListView
+
+In the GrepFMX project the row height of the list item is too high. There are not enough results being shown on MatchesListView at any one time. You need to look at the values for .Height in the TListItemTextShim's
+
+## NOTE:
+
+- This change is only for the GrepFMX as the line height seems fine on the GrepVCL projects
+
+Please investigate and make this change
+
+----------
+

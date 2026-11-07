@@ -27,6 +27,7 @@ uses
   FMX.ListView,
   Grep.Core,
   MatchesList,
+  JSONConfig,
   MatchesDisplay_FMX, FMX.ListView.Types, FMX.ListView.Appearances,
   FMX.ListView.Adapters.Base, FMX.EditBox, FMX.Controls.Presentation;
 
@@ -99,6 +100,10 @@ type
     FCurrentLinesAround: Integer;
     FSearching: Boolean;
     FOpenButton: TButton;
+    function ConfigFilePath: string;
+    function ResolutionKey: string;
+    procedure LoadConfig;
+    procedure SaveConfig;
     procedure ConfigureGrepFromForm;
     procedure ClearResults;
     procedure FinalizeSearchIfReady(const ASearchRequestId: Integer);
@@ -181,6 +186,94 @@ begin
   UpdateSearchUi(False);
   ClearResults;
   UpdateStatusText('Configure the search options and start a new Grep.');
+  LoadConfig;
+end;
+
+function TMainForm.ConfigFilePath: string;
+begin
+  Result := System.IOUtils.TPath.Combine(System.IOUtils.TPath.GetHomePath, 'GrepFMX');
+  Result := System.IOUtils.TPath.Combine(Result, 'config.json');
+end;
+
+function TMainForm.ResolutionKey: string;
+begin
+  Result := Format('Window.%dx%d.', [Round(Screen.Size.Width), Round(Screen.Size.Height)]);
+end;
+
+procedure TMainForm.LoadConfig;
+var
+  Config: TJSONConfig;
+  Key: string;
+  W, H, L, T: Integer;
+begin
+  Config := TJSONConfig.Create;
+  try
+    try
+      TDirectory.CreateDirectory(ExtractFilePath(ConfigFilePath));
+      Config.LoadFromFile(ConfigFilePath, True);
+
+      Key := ResolutionKey;
+      if Config.HasKey(Key + 'Width') and Config.HasKey(Key + 'Height') then
+      begin
+        W := Config.GetInteger(Key + 'Width');
+        H := Config.GetInteger(Key + 'Height');
+        L := Config.GetInteger(Key + 'Left');
+        T := Config.GetInteger(Key + 'Top');
+        if (W >= Constraints.MinWidth) and (H >= Constraints.MinHeight) and
+          (L > -W) and (T >= 0) and (L < Screen.Size.Width) and (T < Screen.Size.Height) then
+        begin
+          Position := TFormPosition.Designed;
+          SetBounds(L, T, W, H);
+        end;
+      end;
+
+      // FMX TListView has no columns; the item text width is its equivalent
+      MatchesListView.ItemAppearanceObjects.ItemObjects.Text.Width :=
+        Config.GetFloat('MatchesListView.TextWidth',
+          MatchesListView.ItemAppearanceObjects.ItemObjects.Text.Width);
+    except
+      // A missing or unreadable config must never stop the application
+    end;
+  finally
+    Config.Free;
+  end;
+end;
+
+procedure TMainForm.SaveConfig;
+var
+  Config: TJSONConfig;
+  Key: string;
+begin
+  Config := TJSONConfig.Create;
+  try
+    try
+      TDirectory.CreateDirectory(ExtractFilePath(ConfigFilePath));
+      if TFile.Exists(ConfigFilePath) then
+        try
+          Config.LoadFromFile(ConfigFilePath);
+        except
+          Config.Clear;
+        end;
+
+      if WindowState = TWindowState.wsNormal then
+      begin
+        Key := ResolutionKey;
+        Config.SetInteger(Key + 'Left', Left);
+        Config.SetInteger(Key + 'Top', Top);
+        Config.SetInteger(Key + 'Width', Width);
+        Config.SetInteger(Key + 'Height', Height);
+      end;
+
+      Config.SetFloat('MatchesListView.TextWidth',
+        MatchesListView.ItemAppearanceObjects.ItemObjects.Text.Width);
+
+      Config.SaveToFile(ConfigFilePath);
+    except
+      // Failing to persist settings must not block shutdown
+    end;
+  finally
+    Config.Free;
+  end;
 end;
 
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: WideChar;
@@ -212,6 +305,7 @@ end;
 
 procedure TMainForm.FormDestroy(Sender: TObject);
 begin
+  SaveConfig;
   FGrep.Stop;
   FMatchesDisplay.Free;
   FGrep.Free;
