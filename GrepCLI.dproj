@@ -192,19 +192,23 @@
         <DCC_DebugInformation>0</DCC_DebugInformation>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_Locale>2057</VerInfo_Locale>
         <Icon_MainIcon>Resources\favicon.ico</Icon_MainIcon>
         <UWP_DelphiLogo44>Resources\icon-192.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>Resources\icon-512.png</UWP_DelphiLogo150>
         <Manifest_File>(None)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Build>9</VerInfo_Build>
+        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.9;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Source\CliUtils.pas"/>
         <DCCReference Include="Source\VersionInfo.pas"/>
+        <DCCReference Include="Source\CliUtils.pas"/>
         <DCCReference Include="Source\Grep.Core.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
