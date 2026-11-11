@@ -265,6 +265,7 @@
         </DCCReference>
         <DCCReference Include="Source\Grep.Core.pas"/>
         <DCCReference Include="Source\JSONConfig.pas"/>
+        <DCCReference Include="Source\VersionInfo.pas"/>
         <DCCReference Include="Source\Logger.pas"/>
         <DCCReference Include="Source\MatchesList.pas"/>
         <DCCReference Include="Source\MatchesDisplay_FMX.pas"/>

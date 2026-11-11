@@ -204,6 +204,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Source\CliUtils.pas"/>
+        <DCCReference Include="Source\VersionInfo.pas"/>
         <DCCReference Include="Source\Grep.Core.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

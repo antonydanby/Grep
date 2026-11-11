@@ -28,6 +28,7 @@ uses
   Grep.Core,
   MatchesList,
   JSONConfig,
+  VersionInfo,
   MatchesDisplay_FMX, FMX.ListView.Types, FMX.ListView.Appearances,
   FMX.ListView.Adapters.Base, FMX.EditBox, FMX.Controls.Presentation;
 
@@ -186,13 +187,13 @@ begin
   UpdateSearchUi(False);
   ClearResults;
   UpdateStatusText('Configure the search options and start a new Grep.');
+  Caption := 'Grep - Version ' + TVersionInfo.FileVersion;
   LoadConfig;
 end;
 
 function TMainForm.ConfigFilePath: string;
 begin
-  Result := System.IOUtils.TPath.Combine(System.IOUtils.TPath.GetHomePath, 'GrepFMX');
-  Result := System.IOUtils.TPath.Combine(Result, 'config.json');
+  Result := System.IOUtils.TPath.Combine(ExtractFilePath(ParamStr(0)), 'config.json');
 end;
 
 function TMainForm.ResolutionKey: string;

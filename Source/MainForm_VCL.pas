@@ -26,7 +26,8 @@ uses
   Vcl.FileCtrl,
   Grep.Core,
   MatchesList,
-  JSONConfig;
+  JSONConfig,
+  VersionInfo;
 
 type
   TMainForm = class(TForm)
@@ -292,13 +293,13 @@ begin
   UpdateSearchUi(False);
   ClearResults;
   UpdateStatusText('Configure the search options and start a new Grep.');
+  Caption := 'Grep - Version ' + TVersionInfo.FileVersion;
   LoadConfig;
 end;
 
 function TMainForm.ConfigFilePath: string;
 begin
-  Result := TPath.Combine(TPath.GetHomePath, 'GrepVCL');
-  Result := TPath.Combine(Result, 'config.json');
+  Result := TPath.Combine(ExtractFilePath(ParamStr(0)), 'config.json');
 end;
 
 function TMainForm.ResolutionKey: string;

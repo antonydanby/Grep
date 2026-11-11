@@ -5,6 +5,7 @@ uses
   MainForm_VCL in 'Source\MainForm_VCL.pas' {MainForm},
   Grep.Core in 'Source\Grep.Core.pas',
   JSONConfig in 'Source\JSONConfig.pas',
+  VersionInfo in 'Source\VersionInfo.pas',
   Logger in 'Source\Logger.pas',
   MatchesList in 'Source\MatchesList.pas',
   MatchesDisplay_VCL in 'Source\MatchesDisplay_VCL.pas';

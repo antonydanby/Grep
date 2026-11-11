@@ -9,6 +9,7 @@ uses
   System.Threading,
   System.Generics.Collections,
   System.SyncObjs,
+  VersionInfo in 'Source\VersionInfo.pas',
   CliUtils in 'Source\CliUtils.pas',
   Grep.Core in 'Source\Grep.Core.pas';
 
@@ -82,7 +83,8 @@ end;
 procedure ShowHelp;
 begin
   WriteLn('');
-  WriteLn(C_CYAN + 'GrepCLI - Command line search and replace tool' + C_RESET);
+  WriteLn(C_CYAN + 'GrepCLI - Version ' + TVersionInfo.FileVersion + C_RESET);
+  WriteLn(C_CYAN + 'Command line search and replace tool' + C_RESET);
   WriteLn('');
   WriteLn(C_YELLOW + 'Usage:' + C_RESET + ' GrepCLI [options]');
   WriteLn('');
