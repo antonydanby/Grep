@@ -187,13 +187,13 @@ begin
   UpdateSearchUi(False);
   ClearResults;
   UpdateStatusText('Configure the search options and start a new Grep.');
-  Caption := 'Grep - Version ' + TVersionInfo.FileVersion;
+  Caption := 'GrepFMX - Version ' + TVersionInfo.FileVersion;
   LoadConfig;
 end;
 
 function TMainForm.ConfigFilePath: string;
 begin
-  Result := System.IOUtils.TPath.Combine(ExtractFilePath(ParamStr(0)), 'config.json');
+  Result := System.IOUtils.TPath.Combine(ExtractFilePath(ParamStr(0)), 'GrepFMX.json');
 end;
 
 function TMainForm.ResolutionKey: string;

@@ -1,7 +1,7 @@
 object MainForm: TMainForm
   Left = 0
   Top = 0
-  Caption = 'Quick Grep'
+  Caption = 'GrepVCL'
   ClientHeight = 769
   ClientWidth = 884
   Color = clBtnFace
@@ -33,9 +33,9 @@ object MainForm: TMainForm
     object TitleLabel: TLabel
       Left = 24
       Top = 6
-      Width = 95
+      Width = 79
       Height = 25
-      Caption = 'Quick Grep'
+      Caption = 'Grep VCL'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -19

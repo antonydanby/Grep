@@ -293,13 +293,13 @@ begin
   UpdateSearchUi(False);
   ClearResults;
   UpdateStatusText('Configure the search options and start a new Grep.');
-  Caption := 'Grep - Version ' + TVersionInfo.FileVersion;
+  Caption := 'GrepVCL - Version ' + TVersionInfo.FileVersion;
   LoadConfig;
 end;
 
 function TMainForm.ConfigFilePath: string;
 begin
-  Result := TPath.Combine(ExtractFilePath(ParamStr(0)), 'config.json');
+  Result := TPath.Combine(ExtractFilePath(ParamStr(0)), 'GrepVCL.json');
 end;
 
 function TMainForm.ResolutionKey: string;
