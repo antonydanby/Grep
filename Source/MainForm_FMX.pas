@@ -221,7 +221,8 @@ begin
         L := Config.GetInteger(Key + 'Left');
         T := Config.GetInteger(Key + 'Top');
         if (W >= Constraints.MinWidth) and (H >= Constraints.MinHeight) and
-          (L > -W) and (T >= 0) and (L < Screen.Size.Width) and (T < Screen.Size.Height) then
+          (L + W > Screen.DesktopRect.Left + 50) and (L < Screen.DesktopRect.Right - 50) and
+          (T >= Screen.DesktopRect.Top) and (T < Screen.DesktopRect.Bottom - 50) then
         begin
           Position := TFormPosition.Designed;
           SetBounds(L, T, W, H);

@@ -328,7 +328,8 @@ begin
         L := Config.GetInteger(Key + 'Left');
         T := Config.GetInteger(Key + 'Top');
         if (W >= Constraints.MinWidth) and (H >= Constraints.MinHeight) and
-          (L > -W) and (T >= 0) and (L < Screen.Width) and (T < Screen.Height) then
+          (L + W > Screen.DesktopLeft + 50) and (L < Screen.DesktopLeft + Screen.DesktopWidth - 50) and
+          (T >= Screen.DesktopTop) and (T < Screen.DesktopTop + Screen.DesktopHeight - 50) then
         begin
           Position := poDesigned;
           SetBounds(L, T, W, H);
